@@ -1,7 +1,7 @@
 <script lang="ts">
     import Fa from "svelte-fa";
     import { faPlay, faPause } from "@fortawesome/free-solid-svg-icons";
-    import { file, currentTime, duration } from "./stores";
+    import { file, currentTime, duration, loopStart, loopEnd } from "./stores";
     import { secondsToTime } from "./convert-time";
 
     let audioElement: HTMLAudioElement;
@@ -34,7 +34,16 @@
         {/if}
     </span>
     <span class="current time">{secondsToTime($currentTime)}</span>
-    <input type="range" bind:value={$currentTime} max={$duration} step="any" />
+    <input
+        type="range"
+        bind:value={$currentTime}
+        max={$duration}
+        step="any"
+        style={`
+            --loop-start: ${($loopStart / $duration) * 100}%;
+            --loop-end: ${($loopEnd / $duration) * 100}%;
+        `}
+    />
     <span class="end time">{secondsToTime($duration)}</span>
 </div>
 
@@ -70,10 +79,10 @@
         padding: 0;
         background: linear-gradient(
             to right,
-            #d7d7d7 33%,
-            #ccc 33%,
-            #ccc 66%,
-            #d7d7d7 66%
+            #d7d7d7 var(--loop-start),
+            #ccc var(--loop-start),
+            #ccc var(--loop-end),
+            #d7d7d7 var(--loop-end)
         );
         border-radius: 0.65em;
         outline: none;
