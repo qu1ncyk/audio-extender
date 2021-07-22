@@ -1,12 +1,40 @@
-<script lang="ts"></script>
+<script lang="ts">
+    import { file } from "./stores";
+
+    let fileElement: HTMLInputElement;
+    let url: string;
+
+    async function loadFile() {
+        if (fileElement.files.length > 0) {
+            $file = await loadFromFileInput();
+        } else {
+            $file = url;
+        }
+    }
+
+    function loadFromFileInput(): Promise<string> {
+        return new Promise((resolve) => {
+            let reader = new FileReader();
+            reader.onload = (e) => {
+                let result = e.target.result;
+                if (typeof result === "string") resolve(result);
+            };
+            reader.onerror = (e) => {
+                console.error(e.target.error);
+                alert("Could not read the file");
+            };
+            reader.readAsDataURL(fileElement.files[0]);
+        });
+    }
+</script>
 
 <p>Choose an audio file to extend</p>
 <div class="input-container">
-    <input type="file" accept="audio/*" />
+    <input type="file" accept="audio/*" bind:this={fileElement} />
     <span>or</span>
-    <input type="url" placeholder="Enter a URL" />
+    <input type="url" placeholder="Enter a URL" bind:value={url} />
 </div>
-<button>Extend</button>
+<button on:click={loadFile}>Extend</button>
 
 <style>
     .input-container {
