@@ -16,12 +16,14 @@
     </div>
 </div>
 
+<button>Test</button>
+
 <style>
     .input-container {
         display: flex;
         justify-content: center;
         gap: 0.2em;
-        margin-top: 0.5em;
+        margin: 0.5em 0;
         flex-wrap: wrap;
     }
 
