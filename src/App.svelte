@@ -1,5 +1,6 @@
 <script lang="ts">
 	import FilePicker from "./FilePicker.svelte";
+	import Extender from "./Extender.svelte";
 </script>
 
 <svelte:head>
@@ -11,7 +12,11 @@
 </header>
 
 <main>
-	<FilePicker />
+	{#if false}
+		<FilePicker />
+	{:else}
+		<Extender />
+	{/if}
 </main>
 
 <style>
