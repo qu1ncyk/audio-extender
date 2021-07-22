@@ -1,15 +1,29 @@
-<script>
+<script lang="ts">
     import Fa from "svelte-fa";
     import { faPlay, faPause } from "@fortawesome/free-solid-svg-icons";
+    import { file, currentTime, duration } from "./stores";
+    import { secondsToTime } from "./convert-time";
+
+    let audioElement: HTMLAudioElement;
 
     let playing = false;
     function togglePlaying() {
         playing = !playing;
+        if (playing) audioElement.play();
+        else audioElement.pause();
     }
 </script>
 
 <!-- svelte-ignore a11y-media-has-caption -->
-<audio src="" />
+<audio
+    src={$file}
+    bind:this={audioElement}
+    bind:currentTime={$currentTime}
+    bind:duration={$duration}
+    on:error={() => alert("Could not play the audio file")}
+    on:play={() => (playing = true)}
+    on:pause={() => (playing = false)}
+/>
 
 <div class="player-container">
     <span class="play-button" on:click={togglePlaying}>
@@ -19,9 +33,9 @@
             <Fa icon={faPlay} />
         {/if}
     </span>
-    <span class="current time">0:00</span>
-    <input type="range" value="0" step="any" />
-    <span class="end time">3:55</span>
+    <span class="current time">{secondsToTime($currentTime)}</span>
+    <input type="range" bind:value={$currentTime} max={$duration} step="any" />
+    <span class="end time">{secondsToTime($duration)}</span>
 </div>
 
 <style>
