@@ -2,9 +2,11 @@
     import Player from "./Player.svelte";
     import TimeInput from "./TimeInput.svelte";
     import { loopStart, loopEnd, duration } from "./stores";
+
+    let setLoopEnd: (newValue: number) => any;
 </script>
 
-<Player />
+<Player on:canplay|once={setLoopEnd($duration)} />
 
 <div class="input-container">
     <div class="time-input">
@@ -13,7 +15,11 @@
     </div>
     <div class="time-input">
         <h2>until</h2>
-        <TimeInput bind:value={$loopEnd} valid={$loopEnd <= $duration} />
+        <TimeInput
+            bind:value={$loopEnd}
+            valid={$loopEnd <= $duration}
+            bind:setValue={setLoopEnd}
+        />
     </div>
 </div>
 

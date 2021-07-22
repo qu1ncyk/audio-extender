@@ -5,6 +5,10 @@
     export let valid = true;
     let valueString = secondsToTime(value);
 
+    export function setValue(newValue: number) {
+        valueString = secondsToTime(newValue);
+    }
+
     let isValid;
     $: {
         let tmpValue = timeToSeconds(valueString);

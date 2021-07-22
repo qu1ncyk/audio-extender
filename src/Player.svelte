@@ -3,6 +3,7 @@
     import { faPlay, faPause } from "@fortawesome/free-solid-svg-icons";
     import { file, currentTime, duration, loopStart, loopEnd } from "./stores";
     import { secondsToTime } from "./convert-time";
+    import { createEventDispatcher } from "svelte";
 
     let audioElement: HTMLAudioElement;
 
@@ -12,6 +13,8 @@
         if (playing) audioElement.play();
         else audioElement.pause();
     }
+
+    let dispatch = createEventDispatcher();
 </script>
 
 <!-- svelte-ignore a11y-media-has-caption -->
@@ -20,6 +23,7 @@
     bind:this={audioElement}
     bind:currentTime={$currentTime}
     bind:duration={$duration}
+    on:canplay={() => dispatch("canplay")}
     on:error={() => alert("Could not play the audio file")}
     on:play={() => (playing = true)}
     on:pause={() => (playing = false)}
