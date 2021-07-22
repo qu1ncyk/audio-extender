@@ -1,6 +1,7 @@
 <script lang="ts">
     import Player from "./Player.svelte";
     import TimeInput from "./TimeInput.svelte";
+    import { loopStart, loopEnd, duration } from "./stores";
 </script>
 
 <Player />
@@ -8,11 +9,11 @@
 <div class="input-container">
     <div class="time-input">
         <h2>Loop from</h2>
-        <TimeInput />
+        <TimeInput bind:value={$loopStart} valid={$loopStart <= $loopEnd} />
     </div>
     <div class="time-input">
         <h2>until</h2>
-        <TimeInput />
+        <TimeInput bind:value={$loopEnd} valid={$loopEnd <= $duration} />
     </div>
 </div>
 
