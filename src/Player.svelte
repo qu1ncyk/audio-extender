@@ -3,7 +3,7 @@
     import { faPlay, faPause } from "@fortawesome/free-solid-svg-icons";
     import { file, currentTime, duration, loopStart, loopEnd } from "./stores";
     import { secondsToTime } from "./convert-time";
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
 
     let audioElement: HTMLAudioElement;
 
@@ -19,6 +19,12 @@
     }
 
     let dispatch = createEventDispatcher();
+
+    onMount(() => {
+        const audioContext = new AudioContext();
+        const track = audioContext.createMediaElementSource(audioElement);
+        track.connect(audioContext.destination);
+    });
 </script>
 
 <!-- svelte-ignore a11y-media-has-caption -->
