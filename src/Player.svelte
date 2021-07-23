@@ -14,6 +14,10 @@
         else audioElement.pause();
     }
 
+    $: if($currentTime > $loopEnd) {
+        audioElement.currentTime = $loopStart;
+    }
+
     let dispatch = createEventDispatcher();
 </script>
 
