@@ -8,22 +8,29 @@
         if (fileElement.files.length > 0) {
             $file = await loadFromFileInput();
         } else {
-            $file = url;
+            try {
+                let result = await fetch(url);
+                $file = await result.arrayBuffer();
+            } catch (e) {
+                console.error(e);
+                alert("Could not read the file, because the server does not allow it. " +
+                "Please download and upload it manually.");
+            }
         }
     }
 
-    function loadFromFileInput(): Promise<string> {
+    function loadFromFileInput(): Promise<ArrayBuffer> {
         return new Promise((resolve) => {
             let reader = new FileReader();
             reader.onload = (e) => {
                 let result = e.target.result;
-                if (typeof result === "string") resolve(result);
+                if (typeof result === "object") resolve(result);
             };
             reader.onerror = (e) => {
                 console.error(e.target.error);
                 alert("Could not read the file");
             };
-            reader.readAsDataURL(fileElement.files[0]);
+            reader.readAsArrayBuffer(fileElement.files[0]);
         });
     }
 </script>

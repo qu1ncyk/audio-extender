@@ -1,43 +1,87 @@
 <script lang="ts">
     import Fa from "svelte-fa";
     import { faPlay, faPause } from "@fortawesome/free-solid-svg-icons";
-    import { file, currentTime, duration, loopStart, loopEnd } from "./stores";
+    import { file, duration, loopStart, loopEnd } from "./stores";
     import { secondsToTime } from "./convert-time";
-    import { createEventDispatcher, onMount } from "svelte";
+    import { createEventDispatcher } from "svelte";
 
-    let audioElement: HTMLAudioElement;
+    let audioContext = new AudioContext();
+    let audioSource: AudioBufferSourceNode;
+    let audioBuffer: AudioBuffer;
 
-    let playing = false;
-    function togglePlaying() {
-        playing = !playing;
-        if (playing) audioElement.play();
-        else audioElement.pause();
+    $: if (audioSource) {
+        audioSource.loop = true;
+        audioSource.loopStart = $loopStart;
+        audioSource.loopEnd = $loopEnd;
     }
 
-    $: if($currentTime > $loopEnd) {
-        audioElement.currentTime = $loopStart;
+    function start(when?: number, offset?: number, duration?: number) {
+        audioSource = audioContext.createBufferSource();
+        audioSource.connect(audioContext.destination);
+        audioSource.buffer = audioBuffer;
+        audioSource.start(when, offset, duration);
+        if (audioContext.state === "suspended") audioContext.resume();
+        started = true;
+        playing = true;
+        startingTime = Date.now() / 1000 - sliderValue;
+        progressLoop();
+    }
+
+    let playing = false;
+    let started = false;
+    function togglePlaying() {
+        if (playing) audioContext.suspend();
+        else if (started) audioContext.resume();
+        else start(0, sliderValue);
+    }
+    audioContext.onstatechange = () => {
+        if (started && audioContext.state === "running") {
+            playing = true;
+            startingTime = Date.now() / 1000 - sliderValue;
+            progressLoop();
+        } else {
+            playing = false;
+        }
+    };
+
+    let sliderValue = 0;
+    let startingTime: number;
+    let sliding = false;
+    function slideStart() {
+        sliding = true;
+    }
+    function slideEnd() {
+        sliding = false;
+        startingTime = Date.now() / 1000 - sliderValue;
+        if (started) audioSource.stop();
+        if (playing) start(0, sliderValue);
+        else started = false;
+    }
+
+    function progressLoop() {
+        if (sliderValue >= $loopEnd) {
+            startingTime = Date.now() / 1000 - $loopStart;
+        }
+        if (!sliding) sliderValue = Date.now() / 1000 - startingTime;
+
+        if (playing) requestAnimationFrame(progressLoop);
     }
 
     let dispatch = createEventDispatcher();
 
-    onMount(() => {
-        const audioContext = new AudioContext();
-        const track = audioContext.createMediaElementSource(audioElement);
-        track.connect(audioContext.destination);
-    });
+    (async () => {
+        try {
+            audioSource = audioContext.createBufferSource();
+            audioBuffer = await audioContext.decodeAudioData($file);
+            audioSource.buffer = audioBuffer;
+            $duration = audioSource.buffer.duration;
+            dispatch("duration");
+        } catch (e) {
+            console.error(e);
+            alert("Could not play the audio file");
+        }
+    })();
 </script>
-
-<!-- svelte-ignore a11y-media-has-caption -->
-<audio
-    src={$file}
-    bind:this={audioElement}
-    bind:currentTime={$currentTime}
-    bind:duration={$duration}
-    on:canplay={() => dispatch("canplay")}
-    on:error={() => alert("Could not play the audio file")}
-    on:play={() => (playing = true)}
-    on:pause={() => (playing = false)}
-/>
 
 <div class="player-container">
     <span class="play-button" on:click={togglePlaying}>
@@ -47,10 +91,14 @@
             <Fa icon={faPlay} />
         {/if}
     </span>
-    <span class="current time">{secondsToTime($currentTime)}</span>
+    <span class="current time">{secondsToTime(sliderValue)}</span>
     <input
         type="range"
-        bind:value={$currentTime}
+        bind:value={sliderValue}
+        on:mousedown={slideStart}
+        on:mouseup={slideEnd}
+        on:touchstart={slideStart}
+        on:touchend={slideEnd}
         max={$duration}
         step="any"
         style={`

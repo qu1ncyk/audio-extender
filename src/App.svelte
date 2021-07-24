@@ -13,7 +13,7 @@
 </header>
 
 <main>
-	{#if $file === ""}
+	{#if $file.byteLength === 0}
 		<FilePicker />
 	{:else}
 		<Extender />

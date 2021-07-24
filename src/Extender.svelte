@@ -6,7 +6,7 @@
     let setLoopEnd: (newValue: number) => any;
 </script>
 
-<Player on:canplay|once={setLoopEnd($duration)} />
+<Player on:duration={setLoopEnd($duration)} />
 
 <div class="input-container">
     <div class="time-input">
