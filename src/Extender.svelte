@@ -11,13 +11,13 @@
 <div class="input-container">
     <div class="time-input">
         <h2>Loop from</h2>
-        <TimeInput bind:value={$loopStart} valid={$loopStart <= $loopEnd} />
+        <TimeInput bind:value={$loopStart} max={$loopEnd} />
     </div>
     <div class="time-input">
         <h2>until</h2>
         <TimeInput
             bind:value={$loopEnd}
-            valid={$loopEnd <= $duration}
+            max={$duration}
             bind:setValue={setLoopEnd}
         />
     </div>

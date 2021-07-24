@@ -2,7 +2,7 @@
     import { timeToSeconds, secondsToTime } from "./convert-time";
 
     export let value = 0;
-    export let valid = true;
+    export let max = Infinity;
     let valueString = secondsToTime(value);
 
     export function setValue(newValue: number) {
@@ -12,7 +12,7 @@
     let isValid;
     $: {
         let tmpValue = timeToSeconds(valueString);
-        isValid = valid && tmpValue >= 0 && !isNaN(tmpValue);
+        isValid = tmpValue <= max && tmpValue >= 0 && !isNaN(tmpValue);
         if (isValid) {
             value = tmpValue;
         }
