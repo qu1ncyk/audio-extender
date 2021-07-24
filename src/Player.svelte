@@ -1,15 +1,89 @@
-<script>
+<script lang="ts">
     import Fa from "svelte-fa";
     import { faPlay, faPause } from "@fortawesome/free-solid-svg-icons";
+    import { file, duration, loopStart, loopEnd } from "./stores";
+    import { secondsToTime } from "./convert-time";
+    import { createEventDispatcher } from "svelte";
+
+    let audioContext = new AudioContext();
+    let audioSource: AudioBufferSourceNode;
+    let audioBuffer: AudioBuffer;
+
+    $: if (audioSource) {
+        audioSource.loop = true;
+        audioSource.loopStart = $loopStart;
+        audioSource.loopEnd = $loopEnd;
+    }
+
+    export function start(when?: number, offset?: number, duration?: number) {
+        sliderValue = offset;
+        if (started) audioSource.stop();
+        audioSource = audioContext.createBufferSource();
+        audioSource.connect(audioContext.destination);
+        audioSource.buffer = audioBuffer;
+        audioSource.start(when, offset, duration);
+        if (audioContext.state === "suspended") audioContext.resume();
+        started = true;
+        playing = true;
+        startingTime = Date.now() / 1000 - sliderValue;
+        progressLoop();
+    }
 
     let playing = false;
+    let started = false;
     function togglePlaying() {
-        playing = !playing;
+        if (playing) audioContext.suspend();
+        else if (started) audioContext.resume();
+        else start(0, sliderValue);
     }
-</script>
+    audioContext.onstatechange = () => {
+        if (started && audioContext.state === "running") {
+            playing = true;
+            startingTime = Date.now() / 1000 - sliderValue;
+            progressLoop();
+        } else {
+            playing = false;
+        }
+    };
 
-<!-- svelte-ignore a11y-media-has-caption -->
-<audio src="" />
+    let sliderValue = 0;
+    let startingTime: number;
+    let sliding = false;
+    function slideStart() {
+        sliding = true;
+    }
+    function slideEnd() {
+        sliding = false;
+        startingTime = Date.now() / 1000 - sliderValue;
+        if (started) audioSource.stop();
+        if (playing) start(0, sliderValue);
+        else started = false;
+    }
+
+    function progressLoop() {
+        if (sliderValue >= $loopEnd) {
+            startingTime += $loopEnd - $loopStart;
+        }
+        if (!sliding) sliderValue = Date.now() / 1000 - startingTime;
+
+        if (playing) requestAnimationFrame(progressLoop);
+    }
+
+    let dispatch = createEventDispatcher();
+
+    (async () => {
+        try {
+            audioSource = audioContext.createBufferSource();
+            audioBuffer = await audioContext.decodeAudioData($file);
+            audioSource.buffer = audioBuffer;
+            $duration = audioSource.buffer.duration;
+            dispatch("duration");
+        } catch (e) {
+            console.error(e);
+            alert("Could not play the audio file");
+        }
+    })();
+</script>
 
 <div class="player-container">
     <span class="play-button" on:click={togglePlaying}>
@@ -19,9 +93,22 @@
             <Fa icon={faPlay} />
         {/if}
     </span>
-    <span class="current time">0:00</span>
-    <input type="range" value="0" step="any" />
-    <span class="end time">3:55</span>
+    <span class="current time">{secondsToTime(sliderValue)}</span>
+    <input
+        type="range"
+        bind:value={sliderValue}
+        on:mousedown={slideStart}
+        on:mouseup={slideEnd}
+        on:touchstart={slideStart}
+        on:touchend={slideEnd}
+        max={$duration}
+        step="any"
+        style={`
+            --loop-start: ${($loopStart / $duration) * 100}%;
+            --loop-end: ${($loopEnd / $duration) * 100}%;
+        `}
+    />
+    <span class="end time">{secondsToTime($duration)}</span>
 </div>
 
 <style>
@@ -56,10 +143,10 @@
         padding: 0;
         background: linear-gradient(
             to right,
-            #d7d7d7 33%,
-            #ccc 33%,
-            #ccc 66%,
-            #d7d7d7 66%
+            #d7d7d7 var(--loop-start),
+            #ccc var(--loop-start),
+            #ccc var(--loop-end),
+            #d7d7d7 var(--loop-end)
         );
         border-radius: 0.65em;
         outline: none;

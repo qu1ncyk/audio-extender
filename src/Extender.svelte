@@ -1,22 +1,30 @@
 <script lang="ts">
     import Player from "./Player.svelte";
     import TimeInput from "./TimeInput.svelte";
+    import { loopStart, loopEnd, duration } from "./stores";
+
+    let setLoopEnd: (newValue: number) => any;
+    let start: (when?: number, offset?: number, duration?: number) => void;
 </script>
 
-<Player />
+<Player on:duration={setLoopEnd($duration)} bind:start />
 
 <div class="input-container">
     <div class="time-input">
         <h2>Loop from</h2>
-        <TimeInput />
+        <TimeInput bind:value={$loopStart} max={$loopEnd} />
     </div>
     <div class="time-input">
         <h2>until</h2>
-        <TimeInput />
+        <TimeInput
+            bind:value={$loopEnd}
+            max={$duration}
+            bind:setValue={setLoopEnd}
+        />
     </div>
 </div>
 
-<button>Test</button>
+<button on:click={() => start(0, $loopEnd - 5)}>Test</button>
 
 <style>
     .input-container {
