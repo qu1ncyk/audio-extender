@@ -62,7 +62,7 @@
 
     function progressLoop() {
         if (sliderValue >= $loopEnd) {
-            startingTime = Date.now() / 1000 - $loopStart;
+            startingTime += $loopEnd - $loopStart;
         }
         if (!sliding) sliderValue = Date.now() / 1000 - startingTime;
 
