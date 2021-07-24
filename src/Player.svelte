@@ -15,7 +15,9 @@
         audioSource.loopEnd = $loopEnd;
     }
 
-    function start(when?: number, offset?: number, duration?: number) {
+    export function start(when?: number, offset?: number, duration?: number) {
+        sliderValue = offset;
+        if (started) audioSource.stop();
         audioSource = audioContext.createBufferSource();
         audioSource.connect(audioContext.destination);
         audioSource.buffer = audioBuffer;

@@ -4,9 +4,10 @@
     import { loopStart, loopEnd, duration } from "./stores";
 
     let setLoopEnd: (newValue: number) => any;
+    let start: (when?: number, offset?: number, duration?: number) => void;
 </script>
 
-<Player on:duration={setLoopEnd($duration)} />
+<Player on:duration={setLoopEnd($duration)} bind:start />
 
 <div class="input-container">
     <div class="time-input">
@@ -23,7 +24,7 @@
     </div>
 </div>
 
-<button>Test</button>
+<button on:click={() => start(0, $loopEnd - 5)}>Test</button>
 
 <style>
     .input-container {
