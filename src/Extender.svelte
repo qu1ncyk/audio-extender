@@ -1,6 +1,7 @@
 <script lang="ts">
     import Player from "./Player.svelte";
     import TimeInput from "./TimeInput.svelte";
+    import FrequencyGraph from "./FrequencyGraph.svelte";
     import { loopStart, loopEnd, duration } from "./stores";
 
     let setLoopEnd: (newValue: number) => any;
@@ -23,6 +24,8 @@
         />
     </div>
 </div>
+
+<FrequencyGraph />
 
 <button on:click={() => start(0, $loopEnd - 5)}>Test</button>
 
