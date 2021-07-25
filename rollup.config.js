@@ -30,7 +30,7 @@ function serve() {
 	};
 }
 
-export default {
+export default [{
 	input: 'src/main.ts',
 	output: {
 		sourcemap: true,
@@ -62,7 +62,8 @@ export default {
 		commonjs(),
 		typescript({
 			sourceMap: !production,
-			inlineSources: !production
+			inlineSources: !production,
+			isolatedModules: true
 		}),
 
 		// In dev mode, call `npm run start` once
@@ -80,4 +81,25 @@ export default {
 	watch: {
 		clearScreen: false
 	}
-};
+}, {
+	input: 'src/precise-time-analyser-processor.ts',
+	output: {
+		sourcemap: true,
+		format: 'iife',
+		name: 'preciseTimeAnalyserProcessor',
+		file: 'public/build/precise-time-analyser-processor.js'
+	},
+	plugins: [
+		resolve({
+			browser: true
+		}),
+		commonjs(),
+
+		typescript({
+			sourceMap: !production,
+			inlineSources: !production
+		}),
+
+		production && terser()
+	]
+}];
