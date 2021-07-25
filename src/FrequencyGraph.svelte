@@ -1,7 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { loopStart, loopEnd, audioBuffer } from "./stores";
-    import PreciseTimeAnalyserNode from "./precise-time-analyser-node";
 
     let canvas: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
@@ -36,18 +35,6 @@
     }
 
     async function drawGraph() {
-        let data = new Float32Array(1024);
-        PreciseTimeAnalyserNode.addModule(audioContext)
-            .then(() => {
-                let audioSource = audioContext.createBufferSource();
-                let analyser = new PreciseTimeAnalyserNode(audioContext);
-                audioSource.buffer = $audioBuffer;
-                audioSource.connect(analyser);
-                audioSource.start(0, 30, 1);
-                return analyser.getFloatTimeDomainData(data);
-            })
-            .then(() => console.log(data));
-            
         let [loopStartFreqData, loopEndFreqData] = await Promise.all([
             getFrequencyData($loopStart),
             getFrequencyData($loopEnd),
