@@ -1,7 +1,7 @@
 <script lang="ts">
     import Player from "./Player.svelte";
     import TimeInput from "./TimeInput.svelte";
-    import FrequencyGraph from "./FrequencyGraph.svelte";
+    import FrequencyGraph from "./WaveGraph.svelte";
     import { loopStart, loopEnd, duration } from "./stores";
 
     let setLoopEnd: (newValue: number) => any;

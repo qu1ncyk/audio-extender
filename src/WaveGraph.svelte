@@ -6,39 +6,21 @@
     let ctx: CanvasRenderingContext2D;
     let audioContext = new AudioContext();
 
-    function u8OnlyContainsZeros(u8: Uint8Array) {
-        for (let item of u8) {
-            if (item !== 0) return false;
+    function getTimeDomainData(time: number) {
+        let floatData = new Float32Array(1024);
+        $audioBuffer.copyFromChannel(floatData, 0, $audioBuffer.sampleRate * time);
+
+        let byteData = new Uint8Array(1024);
+        for(let i in floatData) {
+            byteData[i] = Math.round((floatData[i] + 1) * 127.5);
         }
-        return true;
+
+        return byteData;
     }
 
-    function getFrequencyData(time: number): Promise<Uint8Array> {
-        return new Promise((resolve) => {
-            let audioSource = audioContext.createBufferSource();
-            let analyser = audioContext.createAnalyser();
-            let data = new Uint8Array(1024);
-
-            audioSource.buffer = $audioBuffer;
-            audioSource.connect(analyser);
-            audioSource.start(0, time, 1);
-            (function loop() {
-                analyser.getByteFrequencyData(data);
-                if (u8OnlyContainsZeros(data)) {
-                    setTimeout(loop, 0);
-                } else {
-                    audioSource.stop();
-                    resolve(data);
-                }
-            })();
-        });
-    }
-
-    async function drawGraph() {
-        let [loopStartFreqData, loopEndFreqData] = await Promise.all([
-            getFrequencyData($loopStart),
-            getFrequencyData($loopEnd),
-        ]);
+    function drawGraph() {
+        let loopStartFreqData = getTimeDomainData($loopStart);
+        let loopEndFreqData = getTimeDomainData($loopEnd);
 
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, 1024, 256);
@@ -85,7 +67,7 @@
     $: if ($audioBuffer.length > 1) {
         $loopStart;
         $loopEnd;
-        drawGraph().then(console.log);
+        drawGraph();
     }
 
     onMount(() => {
