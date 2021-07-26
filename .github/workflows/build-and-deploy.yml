@@ -1,0 +1,39 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+  
+      - name: Setup Node
+        uses: actions/setup-node@v2.3.0
+        with:
+          node-version: 14.x
+          
+      - name: Install dependencies and build
+        run: |
+          npm ci
+          npm run build
+      
+      - name: Setup GPG signing key
+        uses: crazy-max/ghaction-import-gpg@v3
+        with:
+          gpg-private-key: ${{secrets.GPG_PRIVATE_KEY}}
+          passphrase: ${{secrets.PASSPHRASE}}
+          git-user-signingkey: true
+          git-commit-gpgsign: true
+          
+      - name: Deploy to gh-pages
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          git-config-name: ${{github.repository_owner}}
+          git-config-email: ${{github.event.repository.owner.id}}+${{github.repository_owner}}@users.noreply.github.com
+          branch: gh-pages
+          folder: public
+          clean: true
