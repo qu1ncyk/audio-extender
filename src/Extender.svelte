@@ -6,6 +6,8 @@
 
     let setLoopEnd: (newValue: number) => any;
     let start: (when?: number, offset?: number, duration?: number) => void;
+
+    let graphDomain: number | "sample";
 </script>
 
 <Player on:duration={setLoopEnd($duration)} bind:start />
@@ -26,9 +28,17 @@
 </div>
 
 <div>
-    <FrequencyGraph />
+    <FrequencyGraph {graphDomain} />
 </div>
 
+<select bind:value={graphDomain}>
+    <option value="sample">Pixel = sample</option>
+    <option value="0.05">Width = 50ms</option>
+    <option value="0.1">Width = 0.1s</option>
+    <option value="0.5">Width = 0.5s</option>
+    <option value="1">Width = 1s</option>
+    <option value="5">Width = 5s</option>
+</select>
 <button on:click={() => start(0, $loopEnd - 5)}>Test</button>
 
 <style>
