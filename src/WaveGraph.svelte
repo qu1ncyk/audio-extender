@@ -4,62 +4,43 @@
 
     let canvas: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
-    let audioContext = new AudioContext();
 
     function getTimeDomainData(time: number) {
         let floatData = new Float32Array(1024);
-        $audioBuffer.copyFromChannel(floatData, 0, $audioBuffer.sampleRate * time);
+        $audioBuffer.copyFromChannel(
+            floatData,
+            0,
+            $audioBuffer.sampleRate * time
+        );
 
         let byteData = new Uint8Array(1024);
-        for(let i in floatData) {
-            byteData[i] = Math.round((floatData[i] + 1) * 127.5);
+        for (let i in floatData) {
+            byteData[i] = Math.round((1 - floatData[i]) * 127.5);
         }
 
         return byteData;
     }
 
     function drawGraph() {
-        let loopStartFreqData = getTimeDomainData($loopStart);
-        let loopEndFreqData = getTimeDomainData($loopEnd);
+        let loopStartData = getTimeDomainData($loopStart);
+        let loopEndData = getTimeDomainData($loopEnd);
 
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, 1024, 256);
 
         ctx.beginPath();
-        ctx.strokeStyle = "blue";
-        for (let i = 0; i < 1024; i++) {
-            let min = Math.min(loopStartFreqData[i], loopEndFreqData[i]);
-
-            ctx.moveTo(i, 0);
-            ctx.lineTo(i, min);
-        }
-        ctx.stroke();
-
-        ctx.beginPath();
         ctx.strokeStyle = "lime";
-        for (let i = 0; i < 1024; i++) {
-            let min = Math.min(loopStartFreqData[i], loopEndFreqData[i]);
-            let max = Math.max(loopStartFreqData[i], loopEndFreqData[i]);
-            let loopStartIsGreater = loopStartFreqData[i] > loopEndFreqData[i];
-
-            if (loopStartIsGreater) {
-                ctx.moveTo(i, min);
-                ctx.lineTo(i, max);
-            }
+        ctx.moveTo(0, loopStartData[0]);
+        for (let i = 1; i < 1024; i++) {
+            ctx.lineTo(i, loopStartData[i]);
         }
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.strokeStyle = "cyan";
-        for (let i = 0; i < 1024; i++) {
-            let min = Math.min(loopStartFreqData[i], loopEndFreqData[i]);
-            let max = Math.max(loopStartFreqData[i], loopEndFreqData[i]);
-            let loopEndIsGreater = loopEndFreqData[i] > loopStartFreqData[i];
-
-            if (loopEndIsGreater) {
-                ctx.moveTo(i, min);
-                ctx.lineTo(i, max);
-            }
+        ctx.strokeStyle = "rgba(0, 0, 255, 0.5)";
+        ctx.moveTo(0, loopEndData[0]);
+        for (let i = 1; i < 1024; i++) {
+            ctx.lineTo(i, loopEndData[i]);
         }
         ctx.stroke();
     }
@@ -72,14 +53,8 @@
 
     onMount(() => {
         ctx = canvas.getContext("2d");
-        ctx.translate(0.5, 0);
+        ctx.lineWidth = 2;
     });
 </script>
 
 <canvas width="1024" height="256" bind:this={canvas} />
-
-<style>
-    canvas {
-        image-rendering: pixelated;
-    }
-</style>
