@@ -25,7 +25,9 @@
     </div>
 </div>
 
-<FrequencyGraph />
+<div>
+    <FrequencyGraph />
+</div>
 
 <button on:click={() => start(0, $loopEnd - 5)}>Test</button>
 
