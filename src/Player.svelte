@@ -1,13 +1,12 @@
 <script lang="ts">
     import Fa from "svelte-fa";
     import { faPlay, faPause } from "@fortawesome/free-solid-svg-icons";
-    import { file, duration, loopStart, loopEnd } from "./stores";
+    import { file, duration, loopStart, loopEnd, audioBuffer } from "./stores";
     import { secondsToTime } from "./convert-time";
     import { createEventDispatcher } from "svelte";
 
     let audioContext = new AudioContext();
     let audioSource: AudioBufferSourceNode;
-    let audioBuffer: AudioBuffer;
 
     $: if (audioSource) {
         audioSource.loop = true;
@@ -20,7 +19,7 @@
         if (started) audioSource.stop();
         audioSource = audioContext.createBufferSource();
         audioSource.connect(audioContext.destination);
-        audioSource.buffer = audioBuffer;
+        audioSource.buffer = $audioBuffer;
         audioSource.start(when, offset, duration);
         if (audioContext.state === "suspended") audioContext.resume();
         started = true;
@@ -74,8 +73,8 @@
     (async () => {
         try {
             audioSource = audioContext.createBufferSource();
-            audioBuffer = await audioContext.decodeAudioData($file);
-            audioSource.buffer = audioBuffer;
+            $audioBuffer = await audioContext.decodeAudioData($file);
+            audioSource.buffer = $audioBuffer;
             $duration = audioSource.buffer.duration;
             dispatch("duration");
         } catch (e) {
