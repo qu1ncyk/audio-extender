@@ -2,6 +2,7 @@
     import Player from "./Player.svelte";
     import TimeInput from "./TimeInput.svelte";
     import FrequencyGraph from "./WaveGraph.svelte";
+    import Download from "./Download.svelte";
     import { loopStart, loopEnd, duration } from "./stores";
 
     let setLoopEnd: (newValue: number) => any;
@@ -40,6 +41,8 @@
     <option value="5">Width = 5s</option>
 </select>
 <button on:click={() => start(0, $loopEnd - 5)}>Test</button>
+<br />
+<Download />
 
 <style>
     .input-container {
