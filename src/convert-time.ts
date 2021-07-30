@@ -1,9 +1,15 @@
-export function secondsToTime(totalSeconds: number, round = true) {
+export enum RoundingOption {
+    round,
+    milli,
+    noRounding
+}
+
+export function secondsToTime(totalSeconds: number, round = RoundingOption.round) {
     let hours = Math.floor(totalSeconds / 3600);
     let minutes = Math.floor(totalSeconds / 60 % 60);
     let seconds = totalSeconds % 60;
-    if (round) seconds = Math.floor(seconds);
-    else seconds = Math.round(seconds * 1000) / 1000;
+    if (round === RoundingOption.round) seconds = Math.floor(seconds);
+    else if(round === RoundingOption.milli) seconds = Math.round(seconds * 1000) / 1000;
 
     if (hours > 0)
         return `${hours}:${doubleDigit(minutes)}:${doubleDigit(seconds)}`;
