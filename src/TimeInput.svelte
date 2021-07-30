@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { timeToSeconds, secondsToTime } from "./convert-time";
+    import { timeToSeconds, secondsToTime, RoundingOption } from "./convert-time";
 
     export let value = 0;
     export let max = Infinity;
     let valueString = secondsToTime(value);
 
-    export function setValue(newValue: number) {
-        valueString = secondsToTime(newValue);
+    export function setValue(newValue: number, round: RoundingOption) {
+        valueString = secondsToTime(newValue, round);
     }
 
     let isValid;
@@ -21,7 +21,7 @@
     function adjustValue(difference: number) {
         if (value + difference > 0) value += difference;
         else value = 0;
-        valueString = secondsToTime(value, false);
+        valueString = secondsToTime(value, RoundingOption.milli);
     }
 </script>
 
