@@ -1,5 +1,7 @@
 <script lang="ts">
     import { file } from "./stores";
+    import Fa from "svelte-fa";
+    import { faCheck } from "@fortawesome/free-solid-svg-icons";
 
     let fileElement: HTMLInputElement;
     let url: string;
@@ -41,11 +43,13 @@
 <div class="input-container">
     <input type="file" accept="audio/*" bind:this={fileElement} />
     <span class="or">or</span>
-    <input type="url" placeholder="Enter a URL" bind:value={url} />
+    <div class="url-input-container">
+        <input type="url" placeholder="Enter a URL" bind:value={url} />
+        <button><Fa icon={faCheck}/></button>
+    </div>
     <span class="or">or</span>
     <button>Choose from library</button>
 </div>
-<button on:click={loadFile}>Extend</button>
 
 <style>
     .input-container {
@@ -53,19 +57,28 @@
         flex-direction: column;
         justify-content: center;
         gap: 0.5em;
-        margin-bottom: 0.5em;
     }
 
     .or {
         align-self: center;
     }
 
-    .input-container > * {
+    .input-container * {
         text-align: center;
     }
 
-    input {
+    input[type="file"],
+    .url-input-container {
         height: 2.5em;
+        margin: 0;
+    }
+
+    .url-input-container {
+        display: flex;
+    }
+
+    input[type="url"] {
+        flex: 1;
         margin: 0;
     }
 
@@ -78,11 +91,12 @@
             flex-direction: row;
         }
 
-        .input-container > * {
+        .input-container * {
             text-align: left;
         }
 
-        input {
+        input[type="file"],
+        .url-input-container {
             max-width: 40%;
             width: 20em;
         }
