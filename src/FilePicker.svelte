@@ -6,8 +6,13 @@
     let fileElement: HTMLInputElement;
     let url: string;
 
-    async function loadFile() {
-        if (fileElement.files.length > 0) {
+    enum FileSource {
+        file,
+        url,
+    }
+
+    async function loadFile(source: FileSource) {
+        if (source === FileSource.file) {
             $file = await loadFromFileInput();
         } else {
             try {
@@ -41,11 +46,16 @@
 
 <p>Choose an audio file to extend</p>
 <div class="input-container">
-    <input type="file" accept="audio/*" bind:this={fileElement} />
+    <input
+        type="file"
+        accept="audio/*"
+        bind:this={fileElement}
+        on:input={() => loadFile(FileSource.file)}
+    />
     <span class="or">or</span>
     <div class="url-input-container">
         <input type="url" placeholder="Enter a URL" bind:value={url} />
-        <button><Fa icon={faCheck}/></button>
+        <button on:click={() => loadFile(FileSource.url)}><Fa icon={faCheck} /></button>
     </div>
     <span class="or">or</span>
     <button>Choose from library</button>
