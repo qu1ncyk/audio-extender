@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { file } from "./stores";
+    import { file, currentPage, Page } from "./stores";
     import Fa from "svelte-fa";
     import { faCheck } from "@fortawesome/free-solid-svg-icons";
 
@@ -26,6 +26,7 @@
                 );
             }
         }
+        if($file.byteLength !== 0) $currentPage = Page.extender;
     }
 
     function loadFromFileInput(): Promise<ArrayBuffer> {
@@ -58,7 +59,7 @@
         <button on:click={() => loadFile(FileSource.url)}><Fa icon={faCheck} /></button>
     </div>
     <span class="or">or</span>
-    <button>Choose from library</button>
+    <button on:click={() => $currentPage = Page.library}>Choose from library</button>
 </div>
 
 <style>
