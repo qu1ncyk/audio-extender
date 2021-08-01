@@ -13,8 +13,10 @@
                 $file = await result.arrayBuffer();
             } catch (e) {
                 console.error(e);
-                alert("Could not read the file, because the server does not allow it. " +
-                "Please download and upload it manually.");
+                alert(
+                    "Could not read the file, because the server does not allow it. " +
+                        "Please download and upload it manually."
+                );
             }
         }
     }
@@ -38,8 +40,10 @@
 <p>Choose an audio file to extend</p>
 <div class="input-container">
     <input type="file" accept="audio/*" bind:this={fileElement} />
-    <span>or</span>
+    <span class="or">or</span>
     <input type="url" placeholder="Enter a URL" bind:value={url} />
+    <span class="or">or</span>
+    <button>Choose from library</button>
 </div>
 <button on:click={loadFile}>Extend</button>
 
@@ -48,22 +52,25 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center;
+        gap: 0.5em;
+        margin-bottom: 0.5em;
+    }
+
+    .or {
+        align-self: center;
+    }
+
+    .input-container > * {
+        text-align: center;
     }
 
     input {
-        max-width: 80%;
-        width: 20em;
         height: 2.5em;
         margin: 0;
     }
 
-    span {
-        margin: 0.5em;
-    }
-
     button {
-        margin: 0.5em;
+        margin: 0;
     }
 
     @media (min-width: 640px) {
@@ -71,8 +78,13 @@
             flex-direction: row;
         }
 
+        .input-container > * {
+            text-align: left;
+        }
+
         input {
             max-width: 40%;
+            width: 20em;
         }
     }
 </style>
