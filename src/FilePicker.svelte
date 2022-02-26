@@ -2,6 +2,7 @@
     import { file, currentPage, Page } from "./stores";
     import Fa from "svelte-fa";
     import { faCheck } from "@fortawesome/free-solid-svg-icons";
+    import { dbPromise } from "./db";
 
     let fileElement: HTMLInputElement;
     let url: string;
@@ -26,7 +27,7 @@
                 );
             }
         }
-        if($file.byteLength !== 0) $currentPage = Page.extender;
+        if ($file.byteLength !== 0) $currentPage = Page.extender;
     }
 
     function loadFromFileInput(): Promise<ArrayBuffer> {
@@ -43,6 +44,18 @@
             reader.readAsArrayBuffer(fileElement.files[0]);
         });
     }
+
+    let isEmpty = false;
+    let dbError = false;
+    (async () => {
+        try {
+            let db = await dbPromise;
+            let keys = await db.getAllKeys("library", null, 1);
+            if (keys.length === 0) isEmpty = true;
+        } catch (e) {
+            dbError = true;
+        }
+    })();
 </script>
 
 <p>Choose an audio file to extend</p>
@@ -56,10 +69,23 @@
     <span class="or">or</span>
     <div class="url-input-container">
         <input type="url" placeholder="Enter a URL" bind:value={url} />
-        <button on:click={() => loadFile(FileSource.url)}><Fa icon={faCheck} /></button>
+        <button on:click={() => loadFile(FileSource.url)}>
+            <Fa icon={faCheck} />
+        </button>
     </div>
     <span class="or">or</span>
-    <button on:click={() => $currentPage = Page.library}>Choose from library</button>
+    <button
+        on:click={() => ($currentPage = Page.library)}
+        disabled={isEmpty || dbError}
+    >
+        {#if isEmpty}
+            Library is empty
+        {:else if dbError}
+            Library is unavailable
+        {:else}
+            Choose from library
+        {/if}
+    </button>
 </div>
 
 <style>
