@@ -3,7 +3,7 @@
     import TimeInput from "./TimeInput.svelte";
     import FrequencyGraph from "./WaveGraph.svelte";
     import Download from "./Download.svelte";
-    import { loopStart, loopEnd, duration, file } from "./stores";
+    import { loopStart, loopEnd, duration, file, filename } from "./stores";
     import { findEndTime } from "./find-end-time";
     import { RoundingOption } from "./convert-time";
     import { dbPromise } from "./db";
@@ -16,7 +16,7 @@
     async function addToLibrary() {
         let db = await dbPromise;
         db.put("library", {
-            name: "file.m4a",
+            name: $filename,
             loopStart: $loopStart,
             loopEnd: $loopEnd,
             file: $file,

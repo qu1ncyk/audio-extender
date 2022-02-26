@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { file, currentPage, Page } from "./stores";
+    import { file, currentPage, Page, filename } from "./stores";
     import Fa from "svelte-fa";
     import { faCheck } from "@fortawesome/free-solid-svg-icons";
     import { dbPromise } from "./db";
@@ -17,6 +17,13 @@
             $file = await loadFromFileInput();
         } else {
             try {
+                let splitUrl = new URL(url).pathname.split("/");
+                $filename = decodeURIComponent(
+                    splitUrl[splitUrl.length - 1] ||
+                        // use the second last part if the url ends with /
+                        splitUrl[splitUrl.length - 2]
+                );
+
                 let result = await fetch(url);
                 $file = await result.arrayBuffer();
             } catch (e) {
@@ -41,6 +48,7 @@
                 console.error(e.target.error);
                 alert("Could not read the file");
             };
+            $filename = fileElement.files[0].name;
             reader.readAsArrayBuffer(fileElement.files[0]);
         });
     }
