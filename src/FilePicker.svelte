@@ -53,17 +53,18 @@
         });
     }
 
-    let isEmpty = false;
-    let dbError = false;
-    (async () => {
-        try {
-            let db = await dbPromise;
-            let keys = await db.getAllKeys("library", null, 1);
-            if (keys.length === 0) isEmpty = true;
-        } catch (e) {
-            dbError = true;
-        }
-    })();
+    enum DbStatus {
+        ok,
+        error,
+        empty,
+    }
+
+    async function getDbStatus() {
+        let db = await dbPromise;
+        let keys = await db.getAllKeys("library", null, 1);
+        if (keys.length === 0) return DbStatus.empty;
+        return DbStatus.ok;
+    }
 </script>
 
 <p>Choose an audio file to extend</p>
@@ -82,18 +83,19 @@
         </button>
     </div>
     <span class="or">or</span>
-    <button
-        on:click={() => ($currentPage = Page.library)}
-        disabled={isEmpty || dbError}
-    >
-        {#if isEmpty}
-            Library is empty
-        {:else if dbError}
-            Library is unavailable
+    {#await getDbStatus()}
+        <button disabled>Waiting for library...</button>
+    {:then status}
+        {#if status === DbStatus.ok}
+            <button on:click={() => ($currentPage = Page.library)}>
+                Choose from library
+            </button>
         {:else}
-            Choose from library
+            <buttton disabled>Library is empty</buttton>
         {/if}
-    </button>
+    {:catch}
+        <button disabled>Library is not available</button>
+    {/await}
 </div>
 
 <style>
