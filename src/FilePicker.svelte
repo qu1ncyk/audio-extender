@@ -53,17 +53,10 @@
         });
     }
 
-    enum DbStatus {
-        ok,
-        error,
-        empty,
-    }
-
-    async function getDbStatus() {
+    async function isLibraryEmpty() {
         let db = await dbPromise;
         let keys = await db.getAllKeys("library", null, 1);
-        if (keys.length === 0) return DbStatus.empty;
-        return DbStatus.ok;
+        return keys.length === 0;
     }
 </script>
 
@@ -83,10 +76,10 @@
         </button>
     </div>
     <span class="or">or</span>
-    {#await getDbStatus()}
+    {#await isLibraryEmpty()}
         <button disabled>Waiting for library...</button>
-    {:then status}
-        {#if status === DbStatus.ok}
+    {:then isEmpty}
+        {#if !isEmpty}
             <button on:click={() => ($currentPage = Page.library)}>
                 Choose from library
             </button>
