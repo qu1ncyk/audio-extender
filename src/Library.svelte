@@ -33,8 +33,14 @@
     async function deleteFile(fname) {
         if (confirm(`Are you sure you want to delete ${fname}?`)) {
             let db = await dbPromise;
-            db.delete("library", fname);
-            libraryData = getLibraryData();
+            let tx = db.transaction("library", "readwrite");
+            let store = tx.objectStore("library");
+            await store.delete(fname);
+            if ((await store.getAllKeys()).length > 0) {
+                libraryData = getLibraryData();
+            } else {
+                $currentPage = Page.filePicker;
+            }
         }
     }
 </script>
