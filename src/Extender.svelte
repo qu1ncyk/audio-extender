@@ -28,6 +28,7 @@
             loopEnd: $loopEnd,
             file: $file,
         });
+        $storedInLibrary = true;
     }
 </script>
 
