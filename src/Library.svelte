@@ -17,6 +17,7 @@
         let db = await dbPromise;
         return db.getAll("library");
     }
+    let libraryData = getLibraryData();
 
     async function loadFile(fname) {
         let db = await dbPromise;
@@ -28,10 +29,18 @@
         $storedInLibrary = true;
         $currentPage = Page.extender;
     }
+
+    async function deleteFile(fname) {
+        if (confirm(`Are you sure you want to delete ${fname}?`)) {
+            let db = await dbPromise;
+            db.delete("library", fname);
+            libraryData = getLibraryData();
+        }
+    }
 </script>
 
 <table>
-    {#await getLibraryData()}
+    {#await libraryData}
         <p>Loading the library...</p>
     {:then libraryData}
         {#each libraryData as entry}
@@ -43,7 +52,7 @@
                     {secondsToTime(entry.loopStart, RoundingOption.milli)}
                     - {secondsToTime(entry.loopEnd, RoundingOption.milli)}
                 </td>
-                <td class="trashcan">
+                <td class="trashcan" on:click={() => deleteFile(entry.name)}>
                     <Fa icon={faTrashAlt} />
                 </td>
             </tr>
