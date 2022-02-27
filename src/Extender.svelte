@@ -3,17 +3,42 @@
     import TimeInput from "./TimeInput.svelte";
     import FrequencyGraph from "./WaveGraph.svelte";
     import Download from "./Download.svelte";
-    import { loopStart, loopEnd, duration } from "./stores";
+    import {
+        loopStart,
+        loopEnd,
+        duration,
+        file,
+        filename,
+        storedInLibrary,
+    } from "./stores";
     import { findEndTime } from "./find-end-time";
     import { RoundingOption } from "./convert-time";
+    import { dbPromise } from "./db";
 
     let setLoopEnd: (newValue: number, round: RoundingOption) => any;
     let start: (when?: number, offset?: number, duration?: number) => void;
 
     let graphDomain: number | "sample";
+
+    async function addToLibrary() {
+        let db = await dbPromise;
+        db.put("library", {
+            name: $filename,
+            loopStart: $loopStart,
+            loopEnd: $loopEnd,
+            file: $file,
+        });
+        $storedInLibrary = true;
+    }
 </script>
 
-<Player on:duration={setLoopEnd($duration, RoundingOption.round)} bind:start />
+<Player
+    on:duration={setLoopEnd(
+        $storedInLibrary ? $loopEnd : $duration,
+        RoundingOption.round
+    )}
+    bind:start
+/>
 
 <div class="input-container">
     <div class="time-input">
@@ -48,6 +73,14 @@
 </button>
 
 <button on:click={() => start(0, $loopEnd - 5)}>Test</button>
+
+<button on:click={addToLibrary}>
+    {#if $storedInLibrary}
+        Update in library
+    {:else}
+        Add to library
+    {/if}
+</button>
 <br />
 
 <Download />

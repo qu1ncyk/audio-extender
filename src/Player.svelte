@@ -72,8 +72,11 @@
 
     (async () => {
         try {
+            let clonedFile = new ArrayBuffer($file.byteLength);
+            new Uint8Array(clonedFile).set(new Uint8Array($file));
+
             audioSource = audioContext.createBufferSource();
-            $audioBuffer = await audioContext.decodeAudioData($file);
+            $audioBuffer = await audioContext.decodeAudioData(clonedFile);
             audioSource.buffer = $audioBuffer;
             $duration = audioSource.buffer.duration;
             dispatch("duration");

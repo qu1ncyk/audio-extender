@@ -1,7 +1,8 @@
 <script lang="ts">
 	import FilePicker from "./FilePicker.svelte";
 	import Extender from "./Extender.svelte";
-	import {file} from "./stores";
+	import Library from "./Library.svelte";
+	import { currentPage, Page } from "./stores";
 </script>
 
 <svelte:head>
@@ -13,8 +14,10 @@
 </header>
 
 <main>
-	{#if $file.byteLength === 0}
+	{#if $currentPage === Page.filePicker}
 		<FilePicker />
+	{:else if $currentPage === Page.library}
+		<Library />
 	{:else}
 		<Extender />
 	{/if}
