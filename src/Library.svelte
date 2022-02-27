@@ -3,10 +3,30 @@
     import Fa from "svelte-fa";
     import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
     import { dbPromise } from "./db";
+    import {
+        currentPage,
+        file,
+        filename,
+        storedInLibrary,
+        Page,
+        loopStart,
+        loopEnd,
+    } from "./stores";
 
     async function getLibraryData() {
         let db = await dbPromise;
         return db.getAll("library");
+    }
+
+    async function loadFile(fname) {
+        let db = await dbPromise;
+        let data = await db.get("library", fname);
+        $file = data.file;
+        $filename = fname;
+        $loopStart = data.loopStart;
+        $loopEnd = data.loopEnd;
+        $storedInLibrary = true;
+        $currentPage = Page.extender;
     }
 </script>
 
@@ -16,7 +36,7 @@
     {:then libraryData}
         {#each libraryData as entry}
             <tr>
-                <td class="filename">
+                <td class="filename" on:click={() => loadFile(entry.name)}>
                     {entry.name}
                 </td>
                 <td class="time">
