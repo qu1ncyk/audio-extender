@@ -84,7 +84,7 @@
                 Choose from library
             </button>
         {:else}
-            <buttton disabled>Library is empty</buttton>
+            <button disabled>Library is empty</button>
         {/if}
     {:catch}
         <button disabled>Library is not available</button>
