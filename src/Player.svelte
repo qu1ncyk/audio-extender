@@ -110,7 +110,7 @@
             --loop-end: ${($loopEnd / $duration) * 100}%;
         `}
     />
-    <span class="end time">{secondsToTime($duration)}</span>
+    <span class="end time">{secondsToTime(Math.floor($duration))}</span>
 </div>
 
 <style>
