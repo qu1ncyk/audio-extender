@@ -6,6 +6,7 @@ import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import css from 'rollup-plugin-css-only';
+import copy from 'rollup-plugin-copy';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -76,7 +77,15 @@ export default {
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify
-		production && terser()
+		production && terser(),
+
+		copy({
+			targets: [300, 400, 500, 700]
+				.map(x => ({
+					src: `node_modules/@fontsource/roboto/files/*${x}-normal*`,
+					dest: 'public/build/files'
+				}))
+		})
 	],
 	watch: {
 		clearScreen: false
