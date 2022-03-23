@@ -1,27 +1,26 @@
 <script lang="ts">
-    import { timeToSeconds, secondsToTime, RoundingOption } from "./convert-time";
+    import { timeToSeconds, secondsToTime, roundMilli } from "./convert-time";
+    import writableDerived from "svelte-writable-derived";
+    import type { Writable } from "svelte/store";
 
-    export let value = 0;
+    export let value: Writable<number>;
     export let max = Infinity;
-    let valueString = secondsToTime(value);
+    let valueString = writableDerived(value, secondsToTime, {
+        withOld(x, old) {
+            let seconds = timeToSeconds(x);
+            isValid = seconds <= max && seconds >= 0 && !isNaN(seconds);
+            if (isValid) return seconds;
+            else return old;
+        },
+    });
 
-    export function setValue(newValue: number, round: RoundingOption) {
-        valueString = secondsToTime(newValue, round);
-    }
-
-    let isValid;
-    $: {
-        let tmpValue = timeToSeconds(valueString);
-        isValid = tmpValue <= max && tmpValue >= 0 && !isNaN(tmpValue);
-        if (isValid) {
-            value = tmpValue;
-        }
-    }
+    let isValid = true;
 
     function adjustValue(difference: number) {
-        if (value + difference > 0) value += difference;
-        else value = 0;
-        valueString = secondsToTime(value, RoundingOption.milli);
+        let newValue = $value + difference;
+        if (newValue < 0) $value = 0;
+        else if (newValue > max) $value = max;
+        else $value = roundMilli(newValue);
     }
 </script>
 
@@ -33,7 +32,7 @@
 
     <input
         class={isValid ? "" : "invalid"}
-        bind:value={valueString}
+        bind:value={$valueString}
         type="text"
     />
 

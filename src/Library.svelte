@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { RoundingOption, secondsToTime } from "./convert-time";
+    import { secondsToTime } from "./convert-time";
     import Fa from "svelte-fa";
     import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
     import { dbPromise } from "./db";
@@ -55,8 +55,8 @@
                     {entry.name}
                 </td>
                 <td class="time">
-                    {secondsToTime(entry.loopStart, RoundingOption.milli)}
-                    - {secondsToTime(entry.loopEnd, RoundingOption.milli)}
+                    {secondsToTime(Math.round(entry.loopStart))}
+                    - {secondsToTime(Math.round(entry.loopEnd))}
                 </td>
                 <td class="trashcan" on:click={() => deleteFile(entry.name)}>
                     <Fa icon={faTrashAlt} />

@@ -95,7 +95,7 @@
             <Fa icon={faPlay} />
         {/if}
     </span>
-    <span class="current time">{secondsToTime(sliderValue)}</span>
+    <span class="current time">{secondsToTime(Math.floor(sliderValue))}</span>
     <input
         type="range"
         bind:value={sliderValue}
@@ -110,7 +110,7 @@
             --loop-end: ${($loopEnd / $duration) * 100}%;
         `}
     />
-    <span class="end time">{secondsToTime($duration)}</span>
+    <span class="end time">{secondsToTime(Math.floor($duration))}</span>
 </div>
 
 <style>

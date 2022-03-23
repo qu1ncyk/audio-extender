@@ -12,12 +12,9 @@
         storedInLibrary,
     } from "./stores";
     import { findEndTime } from "./find-end-time";
-    import { RoundingOption } from "./convert-time";
     import { dbPromise } from "./db";
 
-    let setLoopEnd: (newValue: number, round: RoundingOption) => any;
     let start: (when?: number, offset?: number, duration?: number) => void;
-
     let graphDomain: number | "sample";
 
     async function addToLibrary() {
@@ -33,25 +30,20 @@
 </script>
 
 <Player
-    on:duration={setLoopEnd(
-        $storedInLibrary ? $loopEnd : $duration,
-        RoundingOption.round
-    )}
+    on:duration={() => {
+        if (!$storedInLibrary) $loopEnd = Math.floor($duration);
+    }}
     bind:start
 />
 
 <div class="input-container">
     <div class="time-input">
         <h2>Loop from</h2>
-        <TimeInput bind:value={$loopStart} max={$loopEnd} />
+        <TimeInput value={loopStart} max={$loopEnd} />
     </div>
     <div class="time-input">
         <h2>until</h2>
-        <TimeInput
-            bind:value={$loopEnd}
-            max={$duration}
-            bind:setValue={setLoopEnd}
-        />
+        <TimeInput value={loopEnd} max={$duration} />
     </div>
 </div>
 
@@ -68,9 +60,7 @@
     <option value="5">Width = 5s</option>
 </select>
 
-<button on:click={() => setLoopEnd(findEndTime(), RoundingOption.noRounding)}>
-    Adjust end time
-</button>
+<button on:click={() => ($loopEnd = findEndTime())}> Adjust end time </button>
 
 <button on:click={() => start(0, $loopEnd - 5)}>Test</button>
 

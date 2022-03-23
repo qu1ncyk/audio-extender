@@ -10,12 +10,16 @@ function getDifference(smallSample: Float32Array, bigSample: Float32Array, offse
 }
 
 export function findEndTime() {
+    // findEndTime takes takes a start sample and a larger end sample.
+    // It then slides the start sample over the end sample and searches
+    // for the best match.
+
     let $audioBuffer = get(audioBuffer);
     let $loopStart = get(loopStart);
     let $loopEnd = get(loopEnd);
     let sampleRate = $audioBuffer.sampleRate;
-    const startSampleLength = 50;
-    const endSampleDuration = 2;
+    const startSampleLength = 250; // # of samples
+    const endSampleDuration = 2; // seconds
 
     let startSample = new Float32Array(startSampleLength);
     $audioBuffer.copyFromChannel(startSample, 0, $loopStart * sampleRate);
@@ -32,6 +36,6 @@ export function findEndTime() {
             smallestDifference = difference;
         }
     }
-    
+
     return $loopEnd - endSampleDuration / 2 + bestOffset / sampleRate;
 }
