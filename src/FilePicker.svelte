@@ -64,7 +64,7 @@
 <div class="input-container">
     <input
         type="file"
-        accept="audio/*"
+        accept="audio/*,video/*"
         bind:this={fileElement}
         on:input={() => loadFile(FileSource.file)}
     />
