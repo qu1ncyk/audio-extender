@@ -95,7 +95,7 @@
             <Fa icon={faPlay} />
         {/if}
     </span>
-    <span class="current time">{secondsToTime(sliderValue)}</span>
+    <span class="current time">{secondsToTime(Math.floor(sliderValue))}</span>
     <input
         type="range"
         bind:value={sliderValue}
