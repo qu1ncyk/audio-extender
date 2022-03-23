@@ -69,12 +69,15 @@
         on:input={() => loadFile(FileSource.file)}
     />
     <span class="or">or</span>
-    <div class="url-input-container">
+    <form
+        class="url-input-container"
+        on:submit|preventDefault={() => loadFile(FileSource.url)}
+    >
         <input type="url" placeholder="Enter a URL" bind:value={url} />
-        <button on:click={() => loadFile(FileSource.url)}>
+        <button type="submit">
             <Fa icon={faCheck} />
         </button>
-    </div>
+    </form>
     <span class="or">or</span>
     {#await isLibraryEmpty()}
         <button disabled>Waiting for library...</button>

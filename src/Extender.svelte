@@ -31,7 +31,7 @@
 
 <Player
     on:duration={() => {
-        if (!$storedInLibrary) $loopEnd = Math.round($loopEnd);
+        if (!$storedInLibrary) $loopEnd = Math.floor($duration);
     }}
     bind:start
 />
