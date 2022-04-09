@@ -4,17 +4,21 @@
 
 // Svelte Colors!
 @use '@material/theme/index' as theme with (
-  $primary: #ff3e00,
-  $secondary: #676778,
+  $primary: color-palette.$blue-800,
+  $secondary: color-palette.$blue-200,
   $surface: #fff,
-  $background: #fff,
+  $background: color-palette.$grey-300,
   $error: color-palette.$red-900
 );
 
+@use 'typography';
+@use 'color-variants';
+
 html,
 body {
-  background-color: theme.$surface;
+  background-color: theme.$background;
   color: theme.$on-surface;
+  margin: 0;
 }
 
 a {

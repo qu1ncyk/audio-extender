@@ -1,0 +1,8 @@
+@use '@material/theme/color-palette';
+@use '@material/top-app-bar/mixins' as top-app-bar;
+
+$color: color-palette.$blue-300 !default;
+
+.mdc-top-app-bar.variant {
+    @include top-app-bar.fill-color-accessible($color);
+}

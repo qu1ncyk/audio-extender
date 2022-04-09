@@ -11,11 +11,7 @@
 	import TopAppBar, { Row, Section, Title } from "@smui/top-app-bar";
 </script>
 
-<svelte:head>
-	<title>Audio Extender</title>
-</svelte:head>
-
-<TopAppBar variant="static">
+<TopAppBar variant="static" class="variant">
 	<Row>
 		<Section>
 			<Title>Audio Extender</Title>
