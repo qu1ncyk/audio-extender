@@ -13,7 +13,8 @@
 
 @use '../typography';
 @use '../color-variants' with (
-  $color: color-palette.$blue-800
+  $color: color-palette.$blue-800,
+  $color-error: theme.$error
 );
 
 html,
@@ -21,6 +22,8 @@ body {
   background-color: theme.$background;
   color: theme.$on-surface;
   margin: 0;
+  width: 100%;
+  height: 100%;
 }
 
 a {
