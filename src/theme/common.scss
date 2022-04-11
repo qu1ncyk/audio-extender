@@ -16,3 +16,9 @@ $color-error: $color !default;
 .error {
   color: $color-error;
 }
+
+.mdc-layout-grid__inner.small-gap {
+  --mdc-layout-grid-gutter-desktop: 8px;
+  --mdc-layout-grid-gutter-tablet: 4px;
+  --mdc-layout-grid-gutter-phone: 4px;
+}

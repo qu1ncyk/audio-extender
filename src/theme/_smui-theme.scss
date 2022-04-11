@@ -5,14 +5,14 @@
 // Svelte Colors!
 @use '@material/theme/index' as theme with (
   $primary: color-palette.$blue-800,
-  $secondary: color-palette.$blue-200,
+  $secondary: color-palette.$deep-orange-900,
   $surface: #fff,
   $background: color-palette.$grey-300,
   $error: color-palette.$red-900
 );
 
 @use 'typography';
-@use 'color-variants' with (
+@use 'common' with (
   $color-error: theme.$error
 );
 
