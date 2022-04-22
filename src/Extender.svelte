@@ -16,12 +16,16 @@
 
     import Grid, { Cell } from "@smui/layout-grid";
     import Card from "@smui/card";
+    import Button, {Label} from "@smui/button";
+    import IconButton from "@smui/icon-button";
+    import SvgIcon from "./SvgIcon.svelte";
+    import { mdiMagnifyMinusOutline, mdiMagnifyPlusOutline, mdiAutoFix, mdiPlay } from "@mdi/js";
 
     const spanFull = { desktop: 12, tablet: 8, phone: 4 };
     const spanHalf = { desktop: 6, tablet: 4, phone: 2 };
 
     let start: (when?: number, offset?: number, duration?: number) => void;
-    let graphDomain: number | "sample";
+    let zoom = 1;
 
     async function addToLibrary() {
         let db = await dbPromise;
@@ -68,24 +72,28 @@
 
     <Cell spanDevices={spanFull}>
         <Card padded>
-            <WaveGraph {graphDomain} />
+            <WaveGraph {zoom} />
+            <div>
+                <IconButton on:click={() => zoom *= 2}>
+                    <SvgIcon icon={mdiMagnifyMinusOutline} />
+                </IconButton>
+                {zoom}
+                <IconButton disabled={zoom === 1} on:click={() => zoom /= 2}>
+                    <SvgIcon icon={mdiMagnifyPlusOutline} />
+                </IconButton>
+
+                <Button on:click={() => ($loopEnd = findEndTime())}>
+                    <SvgIcon icon={mdiAutoFix} />
+                    <Label>Adjust end time</Label>
+                </Button>
+
+                <Button on:click={() => start(0, Math.max($loopEnd - 5, 0))}>
+                    <SvgIcon icon={mdiPlay} />
+                    <Label>Test timings</Label>
+                </Button>
+            </div>
         </Card>
     </Cell>
-
-    <select bind:value={graphDomain}>
-        <option value="sample">Pixel = sample</option>
-        <option value="0.05">Width = 50ms</option>
-        <option value="0.1">Width = 0.1s</option>
-        <option value="0.5">Width = 0.5s</option>
-        <option value="1">Width = 1s</option>
-        <option value="5">Width = 5s</option>
-    </select>
-
-    <button on:click={() => ($loopEnd = findEndTime())}>
-        Adjust end time
-    </button>
-
-    <button on:click={() => start(0, $loopEnd - 5)}>Test</button>
 
     <button on:click={addToLibrary}>
         {#if $storedInLibrary}
