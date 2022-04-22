@@ -7,40 +7,52 @@
     let canvas: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
 
-    let screenWidth: number;
     let width: number;
-    $: width = 0.9 * screenWidth;
 
     function getGraphData(time: number) {
         let dataSize: number;
         if (graphDomain === "sample") dataSize = width;
         else dataSize = graphDomain * $audioBuffer.sampleRate;
 
-        let audioData = new Float32Array(dataSize);
-        $audioBuffer.copyFromChannel(
-            audioData,
-            0,
-            $audioBuffer.sampleRate * time
-        );
+        let dataCenter = $audioBuffer.sampleRate * time;
+        let dataStart = Math.round(dataCenter - dataSize / 2);
 
+        let audioData = new Float32Array(dataSize);
+        $audioBuffer.copyFromChannel(audioData, 0, Math.max(dataStart, 0));
+
+        let offset = Math.max(-dataStart, 0);
         let graphData = new Uint8Array(dataSize);
         for (let i = 0; i < graphData.length; i++) {
-            graphData[i] = Math.round((1 - audioData[i]) * 75);
+            if (i < offset) graphData[i] = 75;
+            else graphData[i] = Math.round((1 - audioData[i - offset]) * 75);
         }
 
         return graphData;
     }
 
     function drawGraph() {
+        const primaryColor = getComputedStyle(document.body).getPropertyValue(
+            "--primary-color"
+        );
+        const secondaryColor = getComputedStyle(document.body).getPropertyValue(
+            "--secondary-color"
+        );
+
         let loopStartData = getGraphData($loopStart);
         let loopEndData = getGraphData($loopEnd);
 
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, width, 256);
+        ctx.clearRect(0, 0, width, 256);
 
         ctx.beginPath();
+        ctx.strokeStyle = "#7f7f7f";
+        ctx.moveTo(width / 2, 0);
+        ctx.lineTo(width / 2, 150);
+        ctx.stroke();
+
+        ctx.globalCompositeOperation = "darken";
+        ctx.beginPath();
         ctx.lineWidth = 2;
-        ctx.strokeStyle = "lime";
+        ctx.strokeStyle = primaryColor;
         ctx.moveTo(0, loopStartData[0]);
         for (let i = 1; i < loopStartData.length; i++) {
             let x = i;
@@ -52,7 +64,7 @@
 
         ctx.beginPath();
         ctx.lineWidth = 2;
-        ctx.strokeStyle = "rgba(0, 0, 255, 0.5)";
+        ctx.strokeStyle = secondaryColor;
         ctx.moveTo(0, loopEndData[0]);
         for (let i = 1; i < loopEndData.length; i++) {
             let x = i;
@@ -75,12 +87,12 @@
     });
 </script>
 
-<svelte:window bind:innerWidth={screenWidth} />
-
-<canvas width="0" height="151" bind:this={canvas} />
+<div bind:clientWidth={width}>
+    <canvas width="0" height="151" bind:this={canvas} />
+</div>
 
 <style>
     canvas {
-        max-width: 90%;
+        width: 100%;
     }
 </style>

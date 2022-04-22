@@ -1,7 +1,7 @@
 <script lang="ts">
     import Player from "./Player.svelte";
     import TimeInput from "./TimeInput.svelte";
-    import FrequencyGraph from "./WaveGraph.svelte";
+    import WaveGraph from "./WaveGraph.svelte";
     import Download from "./Download.svelte";
     import {
         loopStart,
@@ -47,18 +47,30 @@
 
     <Cell spanDevices={spanHalf}>
         <Card>
-            <TimeInput value={loopStart} min={0} max={$loopEnd} title="Loop from" />
+            <TimeInput
+                value={loopStart}
+                min={0}
+                max={$loopEnd}
+                title="Loop from"
+            />
         </Card>
     </Cell>
     <Cell spanDevices={spanHalf}>
         <Card>
-            <TimeInput value={loopEnd} min={$loopStart} max={$duration} title="until" />
+            <TimeInput
+                value={loopEnd}
+                min={$loopStart}
+                max={$duration}
+                title="until"
+            />
         </Card>
     </Cell>
 
-    <div>
-        <FrequencyGraph {graphDomain} />
-    </div>
+    <Cell spanDevices={spanFull}>
+        <Card padded>
+            <WaveGraph {graphDomain} />
+        </Card>
+    </Cell>
 
     <select bind:value={graphDomain}>
         <option value="sample">Pixel = sample</option>
