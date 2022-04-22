@@ -1,8 +1,18 @@
 <script lang="ts">
-    import { audioBuffer, loopStart, loopEnd, duration } from "./stores";
+    import {
+        audioBuffer,
+        loopStart,
+        loopEnd,
+        duration,
+        filename,
+    } from "./stores";
     import toWav from "audiobuffer-to-wav";
 
-    let selected: "loops" | "duration";
+    import Select, { Option } from "@smui/select";
+    import Textfield from "@smui/textfield";
+    import FormField from "@smui/form-field";
+
+    let selected: "loops" | "duration" = "loops";
     let num = 2;
 
     let introDuration: number;
@@ -54,7 +64,7 @@
         return extendedBuffer;
     }
 
-    function download() {
+    export function download() {
         let loops: number;
         if (selected === "loops") {
             loops = num;
@@ -85,36 +95,37 @@
 
         let a = document.createElement("a");
         a.href = url;
-        a.download = "extended.wav";
+        a.download = $filename + "-extended.wav";
         a.click();
 
         URL.revokeObjectURL(url);
     }
 </script>
 
-<div class="download-container">
-    <h2>Download</h2>
-    <select bind:value={selected}>
-        <option value="loops">Amount of loops</option>
-        <option value="duration">Minimal duration</option>
-    </select>
-    <input type="number" bind:value={num} />
-    {selected === "duration" ? "min" : ""}
-
-    <p>Note: these files can get quite big</p>
-
-    <button on:click={download}>Download</button>
+<div>
+    <FormField>
+        <Select bind:value={selected}>
+            <Option value="loops">Amount of loops</Option>
+            <Option value="duration">Minimal duration</Option>
+        </Select>
+    </FormField>
+    <br />
+    <FormField>
+        <Textfield bind:value={num} type="number" style="width: 4em;" />
+        <span>
+            {selected === "loops" ? "loops" : "min"}
+        </span>
+    </FormField>
 </div>
 
+<p>Note: these files can get quite big</p>
+
 <style>
-    input {
-        width: 4em;
+    div {
+        text-align: left;
     }
 
-    .download-container {
-        display: inline-block;
-        border: 1px solid #ddd;
-        padding: 0.2em;
-        background-color: #eee;
+    span {
+        margin-left: 0.5em;
     }
 </style>
