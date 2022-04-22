@@ -19,7 +19,6 @@ jobs:
       - name: Install dependencies and build
         run: |
           npm ci
-          npm run build
       
       - name: Setup GPG signing key
         uses: crazy-max/ghaction-import-gpg@v3
