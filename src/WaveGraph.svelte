@@ -69,7 +69,7 @@
         ctx.stroke();
     }
 
-    $: if ($audioBuffer.length > 1) {
+    $: if ($audioBuffer.length > 1 && canvas) {
         $loopStart;
         $loopEnd;
         canvas.width = width;

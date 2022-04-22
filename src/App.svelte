@@ -9,11 +9,21 @@
 	import "@fontsource/roboto/500.css";
 	import "@fontsource/roboto/700.css";
 	import TopAppBar, { Row, Section, Title } from "@smui/top-app-bar";
+	import IconButton from "@smui/icon-button";
+	import SvgIcon from "./SvgIcon.svelte";
+	import { mdiArrowLeft } from "@mdi/js";
 </script>
 
 <TopAppBar variant="static" class="variant">
 	<Row>
 		<Section>
+			<IconButton
+				class="variant"
+				on:click={() => ($currentPage = Page.filePicker)}
+				disabled={$currentPage === Page.filePicker}
+			>
+				<SvgIcon icon={mdiArrowLeft} />
+			</IconButton>
 			<Title>Audio Extender</Title>
 		</Section>
 	</Row>

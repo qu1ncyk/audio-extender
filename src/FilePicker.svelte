@@ -1,5 +1,11 @@
 <script lang="ts">
-    import { file, currentPage, Page, filename } from "./stores";
+    import {
+        file,
+        currentPage,
+        Page,
+        filename,
+        storedInLibrary,
+    } from "./stores";
     import { dbPromise } from "./db";
 
     import Card from "@smui/card";
@@ -49,7 +55,10 @@
                 snackbar.open();
             }
         }
-        if ($file.byteLength !== 0) $currentPage = Page.extender;
+        if ($file.byteLength !== 0) {
+            $storedInLibrary = false;
+            $currentPage = Page.extender;
+        }
     }
 
     function loadFromFileInput(): Promise<ArrayBuffer> {
