@@ -1,16 +1,40 @@
 <script lang="ts">
-    import { file, currentPage, Page, filename } from "./stores";
-    import Fa from "svelte-fa";
-    import { faCheck } from "@fortawesome/free-solid-svg-icons";
+    import {
+        file,
+        currentPage,
+        Page,
+        filename,
+        storedInLibrary,
+    } from "./stores";
     import { dbPromise } from "./db";
 
-    let fileElement: HTMLInputElement;
-    let url: string;
+    import Card from "@smui/card";
+    import Grid, { Cell } from "@smui/layout-grid";
+    import Textfield from "@smui/textfield";
+    import IconButton from "@smui/icon-button";
+    import SvgIcon from "./SvgIcon.svelte";
+    import {
+        mdiCheck,
+        mdiUpload,
+        mdiLinkVariant,
+        mdiBookmarkMultipleOutline,
+    } from "@mdi/js";
+    import Button, { Label } from "@smui/button";
+    import { Label as FormLabel } from "@smui/common/elements";
+    import Snackbar, { Label as SbLabel } from "@smui/snackbar";
+    import type { SnackbarComponentDev } from "@smui/snackbar";
+
+    let files: FileList | null = null;
+    let url = "";
 
     enum FileSource {
         file,
         url,
     }
+
+    $: files && loadFile(FileSource.file);
+
+    let snackbar: SnackbarComponentDev;
 
     async function loadFile(source: FileSource) {
         if (source === FileSource.file) {
@@ -28,13 +52,13 @@
                 $file = await result.arrayBuffer();
             } catch (e) {
                 console.error(e);
-                alert(
-                    "Could not read the file, because the server does not allow it. " +
-                        "Please download and upload it manually."
-                );
+                snackbar.open();
             }
         }
-        if ($file.byteLength !== 0) $currentPage = Page.extender;
+        if ($file.byteLength !== 0) {
+            $storedInLibrary = false;
+            $currentPage = Page.extender;
+        }
     }
 
     function loadFromFileInput(): Promise<ArrayBuffer> {
@@ -48,8 +72,8 @@
                 console.error(e.target.error);
                 alert("Could not read the file");
             };
-            $filename = fileElement.files[0].name;
-            reader.readAsArrayBuffer(fileElement.files[0]);
+            $filename = files[0].name;
+            reader.readAsArrayBuffer(files[0]);
         });
     }
 
@@ -60,88 +84,107 @@
     }
 </script>
 
-<p>Choose an audio file to extend</p>
-<div class="input-container">
-    <input
-        type="file"
-        accept="audio/*,video/*"
-        bind:this={fileElement}
-        on:input={() => loadFile(FileSource.file)}
-    />
-    <span class="or">or</span>
-    <form
-        class="url-input-container"
-        on:submit|preventDefault={() => loadFile(FileSource.url)}
-    >
-        <input type="url" placeholder="Enter a URL" bind:value={url} />
-        <button type="submit">
-            <Fa icon={faCheck} />
-        </button>
-    </form>
-    <span class="or">or</span>
-    {#await isLibraryEmpty()}
-        <button disabled>Waiting for library...</button>
-    {:then isEmpty}
-        {#if !isEmpty}
-            <button on:click={() => ($currentPage = Page.library)}>
-                Choose from library
-            </button>
-        {:else}
-            <button disabled>Library is empty</button>
-        {/if}
-    {:catch}
-        <button disabled>Library is not available</button>
-    {/await}
+<div>
+    <Card>
+        <Grid>
+            <Cell span={12}>
+                <p>Choose an audio file to extend</p>
+            </Cell>
+            <Cell spanDevices={{ desktop: 3, tablet: 2, phone: 4 }}>
+                <Button
+                    component={FormLabel}
+                    class="full-size"
+                    variant="outlined"
+                >
+                    <SvgIcon icon={mdiUpload} />
+                    <Label>Upload a file</Label>
+                    <input type="file" bind:files accept="audio/*,video/*" />
+                </Button>
+            </Cell>
+            <Cell
+                spanDevices={{ desktop: 1, tablet: 1, phone: 4 }}
+                align="middle"
+            >
+                <span class="or">or</span>
+            </Cell>
+            <Cell spanDevices={{ desktop: 3, tablet: 2, phone: 4 }}>
+                <form on:submit|preventDefault={() => loadFile(FileSource.url)}>
+                    <Textfield
+                        bind:value={url}
+                        label="URL"
+                        variant="outlined"
+                        style="width: 100%;"
+                        type="url"
+                        required
+                    >
+                        <SvgIcon
+                            slot="leadingIcon"
+                            class="mdc-text-field__icon mdc-text-field__icon--leading"
+                            icon={mdiLinkVariant}
+                        />
+                        <IconButton
+                            slot="trailingIcon"
+                            touch
+                            style="margin: auto;"
+                        >
+                            <SvgIcon icon={mdiCheck} />
+                        </IconButton>
+                    </Textfield>
+                </form>
+            </Cell>
+            <Cell
+                spanDevices={{ desktop: 1, tablet: 1, phone: 4 }}
+                align="middle"
+            >
+                <span class="or">or</span>
+            </Cell>
+            <Cell spanDevices={{ desktop: 4, tablet: 2, phone: 4 }}>
+                {#await isLibraryEmpty()}
+                    <Button variant="outlined" class="full-size" disabled>
+                        <SvgIcon icon={mdiBookmarkMultipleOutline} />
+                        <Label>Waiting for library...</Label>
+                    </Button>
+                {:then isEmpty}
+                    {#if !isEmpty}
+                        <Button
+                            variant="outlined"
+                            class="full-size"
+                            on:click={() => ($currentPage = Page.library)}
+                        >
+                            <SvgIcon icon={mdiBookmarkMultipleOutline} />
+                            <Label>Choose from library</Label>
+                        </Button>
+                    {:else}
+                        <Button variant="outlined" class="full-size" disabled>
+                            <SvgIcon icon={mdiBookmarkMultipleOutline} />
+                            <Label>Library is empty</Label>
+                        </Button>
+                    {/if}
+                {:catch}
+                    <Button variant="outlined" class="full-size" disabled>
+                        <SvgIcon icon={mdiBookmarkMultipleOutline} />
+                        <Label>Library is not available</Label>
+                    </Button>
+                {/await}
+            </Cell>
+        </Grid>
+    </Card>
 </div>
 
+<Snackbar bind:this={snackbar} timeoutMs={8000}>
+    <SbLabel>
+        Could not read the file, because the server does not allow it. Please
+        download and upload it manually.
+    </SbLabel>
+</Snackbar>
+
 <style>
-    .input-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 0.5em;
+    * :global(.full-size) {
+        width: 100%;
+        height: 100%;
     }
 
-    .or {
-        align-self: center;
-    }
-
-    .input-container * {
-        text-align: center;
-    }
-
-    input[type="file"],
-    .url-input-container {
-        height: 2.5em;
-        margin: 0;
-    }
-
-    .url-input-container {
-        display: flex;
-    }
-
-    input[type="url"] {
-        flex: 1;
-        margin: 0;
-    }
-
-    button {
-        margin: 0;
-    }
-
-    @media (min-width: 640px) {
-        .input-container {
-            flex-direction: row;
-        }
-
-        .input-container * {
-            text-align: left;
-        }
-
-        input[type="file"],
-        .url-input-container {
-            max-width: 40%;
-            width: 20em;
-        }
+    input[type="file"] {
+        display: none;
     }
 </style>

@@ -1,0 +1,28 @@
+@use '@material/theme/color-palette';
+@use '@material/top-app-bar';
+@use '@material/button';
+
+$color: color-palette.$blue-300 !default;
+$color-error: $color !default;
+
+.mdc-top-app-bar.variant {
+  @include top-app-bar.fill-color-accessible($color);
+}
+
+.mdc-icon-button.variant {
+  @include button.filled-accessible($color);
+}
+
+.mdc-button.red {
+  @include button.filled-accessible($color-error);
+}
+
+.error {
+  color: $color-error;
+}
+
+.mdc-layout-grid__inner.small-gap {
+  --mdc-layout-grid-gutter-desktop: 8px;
+  --mdc-layout-grid-gutter-tablet: 4px;
+  --mdc-layout-grid-gutter-phone: 4px;
+}

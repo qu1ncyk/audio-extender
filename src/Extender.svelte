@@ -1,7 +1,7 @@
 <script lang="ts">
     import Player from "./Player.svelte";
     import TimeInput from "./TimeInput.svelte";
-    import FrequencyGraph from "./WaveGraph.svelte";
+    import WaveGraph from "./WaveGraph.svelte";
     import Download from "./Download.svelte";
     import {
         loopStart,
@@ -14,8 +14,26 @@
     import { findEndTime } from "./find-end-time";
     import { dbPromise } from "./db";
 
+    import Grid, { Cell } from "@smui/layout-grid";
+    import Card from "@smui/card";
+    import Dialog, { Title, Actions, Content } from "@smui/dialog";
+    import Button, { Label } from "@smui/button";
+    import IconButton from "@smui/icon-button";
+    import SvgIcon from "./SvgIcon.svelte";
+    import {
+        mdiMagnifyMinusOutline,
+        mdiMagnifyPlusOutline,
+        mdiAutoFix,
+        mdiPlay,
+        mdiBookmarkMultipleOutline,
+        mdiDownload,
+    } from "@mdi/js";
+
+    const spanFull = { desktop: 12, tablet: 8, phone: 4 };
+    const spanHalf = { desktop: 6, tablet: 4, phone: 2 };
+
     let start: (when?: number, offset?: number, duration?: number) => void;
-    let graphDomain: number | "sample";
+    let zoom = 1;
 
     async function addToLibrary() {
         let db = await dbPromise;
@@ -27,66 +45,100 @@
         });
         $storedInLibrary = true;
     }
+
+    let dialogOpen = false;
+    let download: () => void;
 </script>
 
-<Player
-    on:duration={() => {
-        if (!$storedInLibrary) $loopEnd = Math.floor($duration);
-    }}
-    bind:start
-/>
+<Grid>
+    <Cell spanDevices={spanFull}>
+        <Player
+            on:duration={() => {
+                if (!$storedInLibrary) $loopEnd = Math.floor($duration);
+            }}
+            bind:start
+        />
+    </Cell>
 
-<div class="input-container">
-    <div class="time-input">
-        <h2>Loop from</h2>
-        <TimeInput value={loopStart} max={$loopEnd} />
-    </div>
-    <div class="time-input">
-        <h2>until</h2>
-        <TimeInput value={loopEnd} max={$duration} />
-    </div>
-</div>
+    <Cell spanDevices={spanHalf}>
+        <Card>
+            <TimeInput
+                value={loopStart}
+                min={0}
+                max={$loopEnd}
+                title="Loop from"
+            />
+        </Card>
+    </Cell>
+    <Cell spanDevices={spanHalf}>
+        <Card>
+            <TimeInput
+                value={loopEnd}
+                min={$loopStart}
+                max={$duration}
+                title="until"
+            />
+        </Card>
+    </Cell>
 
-<div>
-    <FrequencyGraph {graphDomain} />
-</div>
+    <Cell spanDevices={spanFull}>
+        <Card padded>
+            <WaveGraph {zoom} />
+            <div>
+                <IconButton on:click={() => (zoom *= 2)}>
+                    <SvgIcon icon={mdiMagnifyMinusOutline} />
+                </IconButton>
+                {zoom}
+                <IconButton disabled={zoom === 1} on:click={() => (zoom /= 2)}>
+                    <SvgIcon icon={mdiMagnifyPlusOutline} />
+                </IconButton>
 
-<select bind:value={graphDomain}>
-    <option value="sample">Pixel = sample</option>
-    <option value="0.05">Width = 50ms</option>
-    <option value="0.1">Width = 0.1s</option>
-    <option value="0.5">Width = 0.5s</option>
-    <option value="1">Width = 1s</option>
-    <option value="5">Width = 5s</option>
-</select>
+                <Button on:click={() => ($loopEnd = findEndTime())}>
+                    <SvgIcon icon={mdiAutoFix} />
+                    <Label>Adjust end time</Label>
+                </Button>
 
-<button on:click={() => ($loopEnd = findEndTime())}> Adjust end time </button>
+                <Button on:click={() => start(0, Math.max($loopEnd - 5, 0))}>
+                    <SvgIcon icon={mdiPlay} />
+                    <Label>Test timings</Label>
+                </Button>
+            </div>
+        </Card>
+    </Cell>
 
-<button on:click={() => start(0, $loopEnd - 5)}>Test</button>
+    <Cell spanDevices={spanFull}>
+        <Card padded>
+            <div>
+                <Button on:click={addToLibrary}>
+                    <SvgIcon icon={mdiBookmarkMultipleOutline} />
+                    <Label>
+                        {#if $storedInLibrary}
+                            Update in library
+                        {:else}
+                            Add to library
+                        {/if}
+                    </Label>
+                </Button>
+                <Button on:click={() => (dialogOpen = true)}>
+                    <SvgIcon icon={mdiDownload} />
+                    <Label>Download</Label>
+                </Button>
+            </div>
+        </Card>
+    </Cell>
+</Grid>
 
-<button on:click={addToLibrary}>
-    {#if $storedInLibrary}
-        Update in library
-    {:else}
-        Add to library
-    {/if}
-</button>
-<br />
-
-<Download />
-
-<style>
-    .input-container {
-        display: flex;
-        justify-content: center;
-        gap: 0.2em;
-        margin: 0.5em 0;
-        flex-wrap: wrap;
-    }
-
-    .time-input {
-        border: 1px solid #ddd;
-        padding: 0.2em;
-        background-color: #eee;
-    }
-</style>
+<Dialog bind:open={dialogOpen}>
+    <Title>Download</Title>
+    <Content>
+        <Download bind:download />
+    </Content>
+    <Actions>
+        <Button>
+            <Label>Cancel</Label>
+        </Button>
+        <Button on:click={download}>
+            <Label>Download</Label>
+        </Button>
+    </Actions>
+</Dialog>
