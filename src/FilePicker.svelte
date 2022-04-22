@@ -15,6 +15,8 @@
     } from "@mdi/js";
     import Button, { Label } from "@smui/button";
     import { Label as FormLabel } from "@smui/common/elements";
+    import Snackbar, { Label as SbLabel } from "@smui/snackbar";
+    import type { SnackbarComponentDev } from "@smui/snackbar";
 
     let files: FileList | null = null;
     let url = "";
@@ -25,6 +27,8 @@
     }
 
     $: files && loadFile(FileSource.file);
+
+    let snackbar: SnackbarComponentDev;
 
     async function loadFile(source: FileSource) {
         if (source === FileSource.file) {
@@ -42,10 +46,7 @@
                 $file = await result.arrayBuffer();
             } catch (e) {
                 console.error(e);
-                alert(
-                    "Could not read the file, because the server does not allow it. " +
-                        "Please download and upload it manually."
-                );
+                snackbar.open();
             }
         }
         if ($file.byteLength !== 0) $currentPage = Page.extender;
@@ -160,6 +161,13 @@
         </Grid>
     </Card>
 </div>
+
+<Snackbar bind:this={snackbar} timeoutMs={8000}>
+    <SbLabel>
+        Could not read the file, because the server does not allow it. Please
+        download and upload it manually.
+    </SbLabel>
+</Snackbar>
 
 <style>
     * :global(.full-size) {
