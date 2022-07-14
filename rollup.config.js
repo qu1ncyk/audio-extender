@@ -7,6 +7,7 @@ import sveltePreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import css from 'rollup-plugin-css-only';
 import copy from 'rollup-plugin-copy';
+import { generateSW } from 'rollup-plugin-workbox';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -85,6 +86,10 @@ export default {
 					src: `node_modules/@fontsource/roboto/files/*${x}-normal*`,
 					dest: 'public/build/files'
 				}))
+		}),
+		generateSW({
+			swDest: 'public/sw.js',
+			globDirectory: 'public/'
 		})
 	],
 	watch: {

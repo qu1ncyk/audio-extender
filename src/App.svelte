@@ -12,6 +12,10 @@
 	import IconButton from "@smui/icon-button";
 	import SvgIcon from "./SvgIcon.svelte";
 	import { mdiArrowLeft } from "@mdi/js";
+
+	if ("serviceWorker" in navigator) {
+		navigator.serviceWorker.register("sw.js");
+	}
 </script>
 
 <TopAppBar variant="static" class="variant">
