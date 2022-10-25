@@ -44,8 +44,9 @@
             $loopEnd * sampleRate
         );
 
-        let bufferSize =
-            sampleRate * (introDuration + loopDuration * loops + outroDuration);
+        let bufferSize = Math.round(
+            sampleRate * (introDuration + loopDuration * loops + outroDuration)
+        );
         let extendedBuffer = new Float32Array(bufferSize);
         extendedBuffer.set(introBuffer);
 
@@ -70,7 +71,7 @@
             loops = num;
         } else {
             loops = Math.ceil(
-                (num - (introDuration + outroDuration)) / loopDuration
+                (num * 60 - (introDuration + outroDuration)) / loopDuration
             );
         }
 
