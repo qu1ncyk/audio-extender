@@ -89,7 +89,8 @@ export default {
 		}),
 		generateSW({
 			swDest: 'public/sw.js',
-			globDirectory: 'public/'
+			globDirectory: 'public/',
+			skipWaiting: true
 		})
 	],
 	watch: {
