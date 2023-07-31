@@ -1,50 +1,72 @@
 <script lang="ts">
-	import FilePicker from "./FilePicker.svelte";
-	import Extender from "./Extender.svelte";
-	import Library from "./Library.svelte";
-	import { currentPage, Page } from "./stores";
+    import FilePicker from "./FilePicker.svelte";
+    import Extender from "./Extender.svelte";
+    import Library from "./Library.svelte";
+    import { currentPage, Page } from "./stores";
 
-	import "@fontsource/roboto/300.css";
-	import "@fontsource/roboto/400.css";
-	import "@fontsource/roboto/500.css";
-	import "@fontsource/roboto/700.css";
-	import TopAppBar, { Row, Section, Title } from "@smui/top-app-bar";
-	import IconButton from "@smui/icon-button";
-	import SvgIcon from "./SvgIcon.svelte";
-	import { mdiArrowLeft } from "@mdi/js";
+    import "@fontsource/roboto/300.css";
+    import "@fontsource/roboto/400.css";
+    import "@fontsource/roboto/500.css";
+    import "@fontsource/roboto/700.css";
+    import TopAppBar, { Row, Section, Title } from "@smui/top-app-bar";
+    import IconButton from "@smui/icon-button";
+    import Menu from "@smui/menu";
+    import type { MenuComponentDev } from "@smui/menu";
+    import List, { Item, Text } from "@smui/list";
+    import SvgIcon from "./SvgIcon.svelte";
+    import { mdiArrowLeft, mdiDotsVertical } from "@mdi/js";
 
-	if ("serviceWorker" in navigator) {
-		navigator.serviceWorker.register("sw.js");
-	}
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js");
+    }
+
+    let menu: MenuComponentDev;
 </script>
 
 <TopAppBar variant="static" class="variant">
-	<Row>
-		<Section>
-			<IconButton
-				class="variant"
-				on:click={() => ($currentPage = Page.filePicker)}
-				disabled={$currentPage === Page.filePicker}
-			>
-				<SvgIcon icon={mdiArrowLeft} />
-			</IconButton>
-			<Title>Audio Extender</Title>
-		</Section>
-	</Row>
+    <Row>
+        <Section>
+            <IconButton
+                class="variant"
+                on:click={() => ($currentPage = Page.filePicker)}
+                disabled={$currentPage === Page.filePicker}
+            >
+                <SvgIcon icon={mdiArrowLeft} />
+            </IconButton>
+            <Title>Audio Extender</Title>
+        </Section>
+        <Section align="end">
+            <div>
+                <IconButton class="variant" on:click={() => menu.setOpen(true)}>
+                    <SvgIcon icon={mdiDotsVertical} />
+                </IconButton>
+                <Menu bind:this={menu}>
+                    <List>
+                        <Item>
+                            <Text>Export library</Text>
+                        </Item>
+                        <Item>
+                            <Text>Import library</Text>
+                        </Item>
+                    </List>
+                </Menu>
+            </div>
+        </Section>
+    </Row>
 </TopAppBar>
 
 <main>
-	{#if $currentPage === Page.filePicker}
-		<FilePicker />
-	{:else if $currentPage === Page.library}
-		<Library />
-	{:else}
-		<Extender />
-	{/if}
+    {#if $currentPage === Page.filePicker}
+        <FilePicker />
+    {:else if $currentPage === Page.library}
+        <Library />
+    {:else}
+        <Extender />
+    {/if}
 </main>
 
 <style>
-	main {
-		text-align: center;
-	}
+    main {
+        text-align: center;
+    }
 </style>
