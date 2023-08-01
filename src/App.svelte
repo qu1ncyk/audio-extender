@@ -3,6 +3,7 @@
     import Extender from "./Extender.svelte";
     import Library from "./Library.svelte";
     import { currentPage, Page } from "./stores";
+    import { exportLibrary } from "./import-export/export-library";
 
     import "@fontsource/roboto/300.css";
     import "@fontsource/roboto/400.css";
@@ -42,7 +43,7 @@
                 </IconButton>
                 <Menu bind:this={menu}>
                     <List>
-                        <Item>
+                        <Item on:SMUI:action={exportLibrary}>
                             <Text>Export library</Text>
                         </Item>
                         <Item>
