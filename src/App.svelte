@@ -4,7 +4,7 @@
     import Library from "./Library.svelte";
     import { currentPage, Page } from "./stores";
     import { exportLibrary } from "./import-export/export-library";
-    import {importLibrary } from "./import-export/import-library";
+    import { importLibrary } from "./import-export/import-library";
 
     import "@fontsource/roboto/300.css";
     import "@fontsource/roboto/400.css";
@@ -15,6 +15,8 @@
     import Menu from "@smui/menu";
     import type { MenuComponentDev } from "@smui/menu";
     import List, { Item, Text } from "@smui/list";
+    import Snackbar, { Label as SbLabel } from "@smui/snackbar";
+    import type { SnackbarComponentDev } from "@smui/snackbar";
     import SvgIcon from "./SvgIcon.svelte";
     import { mdiArrowLeft, mdiDotsVertical } from "@mdi/js";
 
@@ -23,6 +25,20 @@
     }
 
     let menu: MenuComponentDev;
+    let snackbar: SnackbarComponentDev;
+    let error = "";
+
+    /** Wrap a function in an error handling function */
+    function handleError(fn: () => Promise<any>) {
+        return async () => {
+            try {
+                await fn();
+            } catch (e) {
+                error = String(e);
+                snackbar.open();
+            }
+        };
+    }
 </script>
 
 <TopAppBar variant="static" class="variant">
@@ -44,10 +60,10 @@
                 </IconButton>
                 <Menu bind:this={menu}>
                     <List>
-                        <Item on:SMUI:action={exportLibrary}>
+                        <Item on:SMUI:action={handleError(exportLibrary)}>
                             <Text>Export library</Text>
                         </Item>
-                        <Item on:SMUI:action={importLibrary}>
+                        <Item on:SMUI:action={handleError(importLibrary)}>
                             <Text>Import library</Text>
                         </Item>
                     </List>
@@ -66,6 +82,10 @@
         <Extender />
     {/if}
 </main>
+
+<Snackbar bind:this={snackbar}>
+    <SbLabel>Error: {error}</SbLabel>
+</Snackbar>
 
 <style>
     main {
