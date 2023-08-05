@@ -14,11 +14,16 @@
     import IconButton from "@smui/icon-button";
     import Menu from "@smui/menu";
     import type { MenuComponentDev } from "@smui/menu";
-    import List, { Item, Text } from "@smui/list";
+    import List, { Item, Text, Graphic } from "@smui/list";
     import Snackbar, { Label as SbLabel } from "@smui/snackbar";
     import type { SnackbarComponentDev } from "@smui/snackbar";
     import SvgIcon from "./SvgIcon.svelte";
-    import { mdiArrowLeft, mdiDotsVertical } from "@mdi/js";
+    import {
+        mdiArrowLeft,
+        mdiDotsVertical,
+        mdiUpload,
+        mdiDownload,
+    } from "@mdi/js";
 
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("sw.js");
@@ -61,9 +66,11 @@
                 <Menu bind:this={menu}>
                     <List>
                         <Item on:SMUI:action={handleError(exportLibrary)}>
+                            <Graphic><SvgIcon icon={mdiDownload} /></Graphic>
                             <Text>Export library</Text>
                         </Item>
                         <Item on:SMUI:action={handleError(importLibrary)}>
+                            <Graphic><SvgIcon icon={mdiUpload} /></Graphic>
                             <Text>Import library</Text>
                         </Item>
                     </List>
