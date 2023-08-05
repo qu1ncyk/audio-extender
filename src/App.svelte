@@ -4,6 +4,7 @@
     import Library from "./Library.svelte";
     import { currentPage, Page } from "./stores";
     import { exportLibrary } from "./import-export/export-library";
+    import {importLibrary } from "./import-export/import-library";
 
     import "@fontsource/roboto/300.css";
     import "@fontsource/roboto/400.css";
@@ -46,7 +47,7 @@
                         <Item on:SMUI:action={exportLibrary}>
                             <Text>Export library</Text>
                         </Item>
-                        <Item>
+                        <Item on:SMUI:action={importLibrary}>
                             <Text>Import library</Text>
                         </Item>
                     </List>
