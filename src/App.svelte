@@ -13,10 +13,8 @@
     import TopAppBar, { Row, Section, Title } from "@smui/top-app-bar";
     import IconButton from "@smui/icon-button";
     import Menu from "@smui/menu";
-    import type { MenuComponentDev } from "@smui/menu";
     import List, { Item, Text, Graphic } from "@smui/list";
     import Snackbar, { Label as SbLabel } from "@smui/snackbar";
-    import type { SnackbarComponentDev } from "@smui/snackbar";
     import SvgIcon from "./SvgIcon.svelte";
     import {
         mdiArrowLeft,
@@ -29,8 +27,8 @@
         navigator.serviceWorker.register("sw.js");
     }
 
-    let menu: MenuComponentDev;
-    let snackbar: SnackbarComponentDev;
+    let menu: Menu;
+    let snackbar: Snackbar;
     let error = "";
 
     /** Wrap a function in an error handling function */

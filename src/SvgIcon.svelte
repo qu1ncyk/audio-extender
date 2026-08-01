@@ -1,6 +1,5 @@
 <script lang="ts">
     import { Icon } from "@smui/common";
-    import { Svg } from "@smui/common/elements";
 
     export let viewBox = "0 0 24 24";
     export let fill = "currentColor";
@@ -11,6 +10,6 @@
     let className = "";
 </script>
 
-<Icon class={className} {width} {height} component={Svg} {viewBox}>
+<Icon class={className} {width} {height} tag="svg" {viewBox}>
     <path {fill} d={icon} />
 </Icon>

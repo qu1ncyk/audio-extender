@@ -17,7 +17,6 @@
     import { mdiPlay, mdiPause } from "@mdi/js";
     import Slider from "@smui/slider";
     import Snackbar, {Label} from "@smui/snackbar";
-    import type {SnackbarComponentDev} from "@smui/snackbar";
 
     let audioContext = new AudioContext();
     let audioSource: AudioBufferSourceNode;
@@ -28,7 +27,7 @@
         audioSource.loopEnd = $loopEnd;
     }
 
-    export function start(when?: number, offset?: number, duration?: number) {
+    export function start(when: number, offset: number, duration?: number) {
         sliderValue = offset;
         if (started) audioSource.stop();
         audioSource = audioContext.createBufferSource();
@@ -83,7 +82,7 @@
         if (playing) setTimeout(progressLoop, 20);
     }
 
-    let snackbar: SnackbarComponentDev;
+    let snackbar: Snackbar;
 
     let loading = true;
     (async () => {
@@ -101,7 +100,7 @@
             loading = false;
         } catch (e) {
             console.error(e);
-            snackbar.open();
+            snackbar!.open();
         }
     })();
 </script>

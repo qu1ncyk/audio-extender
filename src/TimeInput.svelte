@@ -16,12 +16,10 @@
     const spanHalf = { desktop: 6, tablet: 4, phone: 2 };
     const spanButton = { desktop: 6, tablet: 4, phone: 4 };
 
-    let valueString = writableDerived(value, secondsToTime, {
-        withOld(x, old) {
-            let seconds = timeToSeconds(x);
-            if (!isNaN(seconds)) return seconds;
-            else return old;
-        },
+    let valueString = writableDerived(value, secondsToTime, (x, old) => {
+        let seconds = timeToSeconds(x);
+        if (!isNaN(seconds)) return seconds;
+        else return old;
     });
 
     function adjustValue(difference: number) {
@@ -34,10 +32,7 @@
 
 <Grid>
     <Cell spanDevices={spanFull}>
-        <Textfield
-            bind:value={$valueString}
-            label={title}
-        />
+        <Textfield bind:value={$valueString} label={title} />
     </Cell>
 
     <Cell spanDevices={spanHalf}>

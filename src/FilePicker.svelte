@@ -20,9 +20,7 @@
         mdiBookmarkMultipleOutline,
     } from "@mdi/js";
     import Button, { Label } from "@smui/button";
-    import { Label as FormLabel } from "@smui/common/elements";
     import Snackbar, { Label as SbLabel } from "@smui/snackbar";
-    import type { SnackbarComponentDev } from "@smui/snackbar";
 
     let files: FileList | null = null;
     let url = "";
@@ -34,7 +32,7 @@
 
     $: files && loadFile(FileSource.file);
 
-    let snackbar: SnackbarComponentDev;
+    let snackbar: Snackbar;
 
     async function loadFile(source: FileSource) {
         if (source === FileSource.file) {
@@ -63,13 +61,16 @@
 
     function loadFromFileInput(): Promise<ArrayBuffer> {
         return new Promise((resolve) => {
+            if (!files) {
+                return;
+            }
             let reader = new FileReader();
             reader.onload = (e) => {
-                let result = e.target.result;
-                if (typeof result === "object") resolve(result);
+                let result = e.target?.result;
+                if (result && typeof result === "object") resolve(result);
             };
             reader.onerror = (e) => {
-                console.error(e.target.error);
+                console.error(e.target?.error);
                 alert("Could not read the file");
             };
             $filename = files[0].name;
@@ -92,9 +93,9 @@
             </Cell>
             <Cell spanDevices={{ desktop: 3, tablet: 2, phone: 4 }}>
                 <Button
-                    component={FormLabel}
                     class="full-size"
                     variant="outlined"
+                    tag="label"
                 >
                     <SvgIcon icon={mdiUpload} />
                     <Label>Upload a file</Label>

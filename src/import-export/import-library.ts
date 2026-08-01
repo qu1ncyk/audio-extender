@@ -1,5 +1,5 @@
 import { decode } from "cborg";
-import { dbPromise } from "../db";
+import { dbPromise, type SongData } from "../db";
 import { currentPage, Page } from "../stores";
 import { get } from "svelte/store";
 
@@ -11,7 +11,7 @@ export async function importLibrary() {
     let db = await dbPromise;
     let transaction = db.transaction("library", "readwrite");
     let store = transaction.objectStore("library");
-    decoded.forEach((item) => {
+    decoded.forEach((item: SongData) => {
         store.put(item);
     });
 
@@ -28,6 +28,9 @@ function uploadFile(): Promise<ArrayBuffer> {
         input.accept = "application/cbor";
 
         input.oninput = () => {
+            if (!input.files) {
+                return;
+            }
             let reader = new FileReader();
             reader.onload = () => {
                 resolve(reader.result as ArrayBuffer);

@@ -5,7 +5,7 @@
     export let zoom: number;
 
     let canvas: HTMLCanvasElement;
-    let ctx: CanvasRenderingContext2D;
+    let ctx: CanvasRenderingContext2D | null = null;
 
     let width: number;
 
@@ -29,11 +29,15 @@
     }
 
     function drawGraph() {
+        if (!ctx) {
+            return;
+        }
+
         const primaryColor = getComputedStyle(document.body).getPropertyValue(
-            "--primary-color"
+            "--primary-color",
         );
         const secondaryColor = getComputedStyle(document.body).getPropertyValue(
-            "--secondary-color"
+            "--secondary-color",
         );
 
         let loopStartData = getGraphData($loopStart);
