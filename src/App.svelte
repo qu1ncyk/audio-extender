@@ -29,7 +29,7 @@
 
     let menu: Menu;
     let snackbar: Snackbar;
-    let error = "";
+    let error = $state("");
 
     /** Wrap a function in an error handling function */
     function handleError(fn: () => Promise<any>) {
@@ -49,7 +49,7 @@
         <Section>
             <IconButton
                 class="variant"
-                on:click={() => ($currentPage = Page.filePicker)}
+                onclick={() => ($currentPage = Page.filePicker)}
                 disabled={$currentPage === Page.filePicker}
             >
                 <SvgIcon icon={mdiArrowLeft} />
@@ -58,16 +58,16 @@
         </Section>
         <Section align="end">
             <div>
-                <IconButton class="variant" on:click={() => menu.setOpen(true)}>
+                <IconButton class="variant" onclick={() => menu.setOpen(true)}>
                     <SvgIcon icon={mdiDotsVertical} />
                 </IconButton>
                 <Menu bind:this={menu}>
                     <List>
-                        <Item on:SMUI:action={handleError(exportLibrary)}>
+                        <Item onSMUIAction={handleError(exportLibrary)}>
                             <Graphic><SvgIcon icon={mdiDownload} /></Graphic>
                             <Text>Export library</Text>
                         </Item>
-                        <Item on:SMUI:action={handleError(importLibrary)}>
+                        <Item onSMUIAction={handleError(importLibrary)}>
                             <Graphic><SvgIcon icon={mdiUpload} /></Graphic>
                             <Text>Import library</Text>
                         </Item>

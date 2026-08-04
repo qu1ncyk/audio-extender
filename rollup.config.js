@@ -3,7 +3,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
-import sveltePreprocess from 'svelte-preprocess';
+import { sveltePreprocess } from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import css from 'rollup-plugin-css-only';
 import copy from 'rollup-plugin-copy';
@@ -42,7 +42,12 @@ export default {
 	},
 	plugins: [
 		svelte({
-			preprocess: sveltePreprocess({ sourceMap: !production }),
+			preprocess: sveltePreprocess({
+				sourceMap: !production,
+				typescript: {
+					tsconfigFile: "tsconfig.json"
+				}
+			}),
 			compilerOptions: {
 				// enable run-time checks when not in production
 				dev: !production
@@ -66,7 +71,7 @@ export default {
 		typescript({
 			sourceMap: !production,
 			inlineSources: !production,
-			isolatedModules: true
+			isolatedModules: true,
 		}),
 
 		// In dev mode, call `npm run start` once

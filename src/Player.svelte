@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import {
         file,
         duration,
@@ -19,17 +21,19 @@
     import Snackbar, {Label} from "@smui/snackbar";
 
     let audioContext = new AudioContext();
-    let audioSource: AudioBufferSourceNode;
+    let audioSource: AudioBufferSourceNode | undefined = $state();
 
-    $: if (audioSource) {
-        audioSource.loop = true;
-        audioSource.loopStart = $loopStart;
-        audioSource.loopEnd = $loopEnd;
-    }
+    run(() => {
+        if (audioSource) {
+            audioSource.loop = true;
+            audioSource.loopStart = $loopStart;
+            audioSource.loopEnd = $loopEnd;
+        }
+    });
 
     export function start(when: number, offset: number, duration?: number) {
         sliderValue = offset;
-        if (started) audioSource.stop();
+        if (started) audioSource?.stop();
         audioSource = audioContext.createBufferSource();
         audioSource.connect(audioContext.destination);
         audioSource.buffer = $audioBuffer;
@@ -41,7 +45,7 @@
         progressLoop();
     }
 
-    let playing = false;
+    let playing = $state(false);
     let started = false;
     function togglePlaying() {
         if (playing) audioContext.suspend();
@@ -58,7 +62,7 @@
         }
     };
 
-    let sliderValue = 0;
+    let sliderValue = $state(0);
     let startingTime: number;
     let sliding = false;
     function slideStart() {
@@ -67,7 +71,7 @@
     function slideEnd() {
         sliding = false;
         startingTime = Date.now() / 1000 - sliderValue;
-        if (started) audioSource.stop();
+        if (started) audioSource?.stop();
         if (playing) start(0, sliderValue);
         else started = false;
     }
@@ -84,7 +88,7 @@
 
     let snackbar: Snackbar;
 
-    let loading = true;
+    let loading = $state(true);
     (async () => {
         try {
             let clonedFile = new ArrayBuffer($file.byteLength);
@@ -113,7 +117,7 @@
                 style="width: 24px; height: 24px; margin: 12px;"
             />
         {:else}
-            <IconButton on:click={togglePlaying}>
+            <IconButton onclick={togglePlaying}>
                 <SvgIcon icon={playing ? mdiPause : mdiPlay} />
             </IconButton>
         {/if}
@@ -127,8 +131,8 @@
             bind:value={sliderValue}
             step={0.001}
             style="width: 100%;"
-            on:SMUISlider:input={slideStart}
-            on:SMUISlider:change={slideEnd}
+            onSMUISliderInput={slideStart}
+            onSMUISliderChange={slideEnd}
         />
 
         <span class="end time">{secondsToTime(Math.floor($duration))}</span>

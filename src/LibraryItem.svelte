@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { preventDefault } from 'svelte/legacy';
+
     import { secondsToTime } from "./convert-time";
     import { dbPromise, type SongData } from "./db";
     import {
@@ -26,13 +28,17 @@
     import SvgIcon from "./SvgIcon.svelte";
     import { mdiDotsVertical } from "@mdi/js";
 
-    export let entry: SongData;
+    interface Props {
+        entry: SongData;
+    }
+
+    let { entry }: Props = $props();
 
     let menu: MenuSurface;
 
-    let dialogOpen = false;
-    let name = "";
-    let buttonContainer: HTMLElement;
+    let dialogOpen = $state(false);
+    let name = $state("");
+    let buttonContainer: HTMLElement | undefined = $state();
 
     function getSize(buffer: ArrayBuffer) {
         let size = buffer.byteLength;
@@ -104,14 +110,14 @@
     }
 </script>
 
-<Item on:SMUI:action={() => loadFile(entry.name)}>
+<Item onSMUIAction={() => loadFile(entry.name)}>
     <Text>
         {entry.name}
     </Text>
     <Meta>
         <span bind:this={buttonContainer}>
             <IconButton
-                on:click={(e) => {
+                onclick={(e) => {
                     e.stopImmediatePropagation();
                     menu.setOpen(true);
                 }}
@@ -141,22 +147,22 @@
             </Text>
         </Item>
         <Item>
-            <Button variant="raised" on:click={renameFile}>
+            <Button variant="raised" onclick={renameFile}>
                 <Label>Rename</Label>
             </Button>
         </Item>
         <Item>
-            <Button variant="raised" class="red" on:click={deleteFile}>
+            <Button variant="raised" class="red" onclick={deleteFile}>
                 <Label>Delete</Label>
             </Button>
         </Item>
     </List>
 </MenuSurface>
 
-<Dialog bind:open={dialogOpen} on:SMUIDialog:closed={renameDialogClose}>
+<Dialog bind:open={dialogOpen} onSMUIDialogClosed={renameDialogClose}>
     <Title>Rename file</Title>
     <Content>
-        <form on:submit|preventDefault={() => (dialogOpen = false)}>
+        <form onsubmit={preventDefault(() => (dialogOpen = false))}>
             <Textfield bind:value={name} />
         </form>
     </Content>

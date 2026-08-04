@@ -1,13 +1,19 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import { onMount } from "svelte";
     import { loopStart, loopEnd, audioBuffer } from "./stores";
 
-    export let zoom: number;
+    interface Props {
+        zoom: number;
+    }
+
+    let { zoom }: Props = $props();
 
     let canvas: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D | null = null;
 
-    let width: number;
+    let width: number = $state()!;
 
     function getGraphData(time: number) {
         let dataSize = width * zoom;
@@ -73,13 +79,15 @@
         ctx.stroke();
     }
 
-    $: if ($audioBuffer.length > 1 && canvas) {
-        $loopStart;
-        $loopEnd;
-        canvas.width = width;
-        zoom;
-        drawGraph();
-    }
+    run(() => {
+        if ($audioBuffer.length > 1 && canvas) {
+            $loopStart;
+            $loopEnd;
+            canvas.width = width;
+            zoom;
+            drawGraph();
+        }
+    });
 
     onMount(() => {
         ctx = canvas.getContext("2d");
@@ -87,7 +95,7 @@
 </script>
 
 <div bind:clientWidth={width}>
-    <canvas width="0" height="151" bind:this={canvas} />
+    <canvas width="0" height="151" bind:this={canvas}></canvas>
 </div>
 
 <style>

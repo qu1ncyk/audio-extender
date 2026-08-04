@@ -32,8 +32,9 @@
     const spanFull = { desktop: 12, tablet: 8, phone: 4 };
     const spanHalf = { desktop: 6, tablet: 4, phone: 2 };
 
-    let start: (when?: number, offset?: number, duration?: number) => void;
-    let zoom = 1;
+    let player: Player;
+    let download: Download = $state()!;
+    let zoom = $state(1);
 
     async function addToLibrary() {
         let db = await dbPromise;
@@ -46,18 +47,12 @@
         $storedInLibrary = true;
     }
 
-    let dialogOpen = false;
-    let download: () => void;
+    let dialogOpen = $state(false);
 </script>
 
 <Grid>
     <Cell spanDevices={spanFull}>
-        <Player
-            on:duration={() => {
-                if (!$storedInLibrary) $loopEnd = Math.floor($duration);
-            }}
-            bind:start
-        />
+        <Player bind:this={player} />
     </Cell>
 
     <Cell spanDevices={spanHalf}>
@@ -85,20 +80,22 @@
         <Card padded>
             <WaveGraph {zoom} />
             <div>
-                <IconButton on:click={() => (zoom *= 2)}>
+                <IconButton onclick={() => (zoom *= 2)}>
                     <SvgIcon icon={mdiMagnifyMinusOutline} />
                 </IconButton>
                 {zoom}
-                <IconButton disabled={zoom === 1} on:click={() => (zoom /= 2)}>
+                <IconButton disabled={zoom === 1} onclick={() => (zoom /= 2)}>
                     <SvgIcon icon={mdiMagnifyPlusOutline} />
                 </IconButton>
 
-                <Button on:click={() => ($loopEnd = findEndTime())}>
+                <Button onclick={() => ($loopEnd = findEndTime())}>
                     <SvgIcon icon={mdiAutoFix} />
                     <Label>Adjust end time</Label>
                 </Button>
 
-                <Button on:click={() => start(0, Math.max($loopEnd - 5, 0))}>
+                <Button
+                    onclick={() => player.start(0, Math.max($loopEnd - 5, 0))}
+                >
                     <SvgIcon icon={mdiPlay} />
                     <Label>Test timings</Label>
                 </Button>
@@ -109,7 +106,7 @@
     <Cell spanDevices={spanFull}>
         <Card padded>
             <div>
-                <Button on:click={addToLibrary}>
+                <Button onclick={addToLibrary}>
                     <SvgIcon icon={mdiBookmarkMultipleOutline} />
                     <Label>
                         {#if $storedInLibrary}
@@ -119,7 +116,7 @@
                         {/if}
                     </Label>
                 </Button>
-                <Button on:click={() => (dialogOpen = true)}>
+                <Button onclick={() => (dialogOpen = true)}>
                     <SvgIcon icon={mdiDownload} />
                     <Label>Download</Label>
                 </Button>
@@ -131,13 +128,13 @@
 <Dialog bind:open={dialogOpen}>
     <Title>Download</Title>
     <Content>
-        <Download bind:download />
+        <Download bind:this={download} />
     </Content>
     <Actions>
         <Button>
             <Label>Cancel</Label>
         </Button>
-        <Button on:click={download}>
+        <Button onclick={() => download.download()}>
             <Label>Download</Label>
         </Button>
     </Actions>

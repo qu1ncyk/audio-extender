@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run, preventDefault } from 'svelte/legacy';
+
     import {
         file,
         currentPage,
@@ -22,15 +24,14 @@
     import Button, { Label } from "@smui/button";
     import Snackbar, { Label as SbLabel } from "@smui/snackbar";
 
-    let files: FileList | null = null;
-    let url = "";
+    let files: FileList | null = $state(null);
+    let url = $state("");
 
     enum FileSource {
         file,
         url,
     }
 
-    $: files && loadFile(FileSource.file);
 
     let snackbar: Snackbar;
 
@@ -83,6 +84,9 @@
         let keys = await db.getAllKeys("library", null, 1);
         return keys.length === 0;
     }
+    run(() => {
+        files && loadFile(FileSource.file);
+    });
 </script>
 
 <div>
@@ -109,7 +113,7 @@
                 <span class="or">or</span>
             </Cell>
             <Cell spanDevices={{ desktop: 3, tablet: 2, phone: 4 }}>
-                <form on:submit|preventDefault={() => loadFile(FileSource.url)}>
+                <form onsubmit={preventDefault(() => loadFile(FileSource.url))}>
                     <Textfield
                         bind:value={url}
                         label="URL"
@@ -118,18 +122,22 @@
                         type="url"
                         required
                     >
-                        <SvgIcon
-                            slot="leadingIcon"
-                            class="mdc-text-field__icon mdc-text-field__icon--leading"
-                            icon={mdiLinkVariant}
-                        />
-                        <IconButton
-                            slot="trailingIcon"
-                            touch
-                            style="margin: auto;"
-                        >
-                            <SvgIcon icon={mdiCheck} />
-                        </IconButton>
+                        {#snippet leadingIcon()}
+                                                <SvgIcon
+
+                                class="mdc-text-field__icon mdc-text-field__icon--leading"
+                                icon={mdiLinkVariant}
+                            />
+                                            {/snippet}
+                        {#snippet trailingIcon()}
+                                                <IconButton
+
+                                touch
+                                style="margin: auto;"
+                            >
+                                <SvgIcon icon={mdiCheck} />
+                            </IconButton>
+                                            {/snippet}
                     </Textfield>
                 </form>
             </Cell>
@@ -150,7 +158,7 @@
                         <Button
                             variant="outlined"
                             class="full-size"
-                            on:click={() => ($currentPage = Page.library)}
+                            onclick={() => ($currentPage = Page.library)}
                         >
                             <SvgIcon icon={mdiBookmarkMultipleOutline} />
                             <Label>Choose from library</Label>

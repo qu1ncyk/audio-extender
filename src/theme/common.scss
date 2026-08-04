@@ -1,6 +1,6 @@
-@use '@material/theme/color-palette';
-@use '@material/top-app-bar';
-@use '@material/button';
+@use '@smui/common/theme/color-palette';
+@use '@smui/top-app-bar/styles/mixins' as top-app-bar;
+@use '@smui/button/styles/mixins' as button;
 
 $color: color-palette.$blue-300 !default;
 $color-error: $color !default;

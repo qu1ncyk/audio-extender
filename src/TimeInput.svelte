@@ -7,10 +7,19 @@
     import Button, { Label } from "@smui/button";
     import Textfield from "@smui/textfield";
 
-    export let value: Writable<number>;
-    export let min = -Infinity;
-    export let max = Infinity;
-    export let title = "";
+    interface Props {
+        value: Writable<number>;
+        min?: any;
+        max?: any;
+        title?: string;
+    }
+
+    let {
+        value,
+        min = -Infinity,
+        max = Infinity,
+        title = ""
+    }: Props = $props();
 
     const spanFull = { desktop: 12, tablet: 8, phone: 4 };
     const spanHalf = { desktop: 6, tablet: 4, phone: 2 };
@@ -38,22 +47,22 @@
     <Cell spanDevices={spanHalf}>
         <InnerGrid class="small-gap">
             <Cell spanDevices={spanButton}>
-                <Button on:click={() => adjustValue(-0.001)} color="secondary">
+                <Button onclick={() => adjustValue(-0.001)} color="secondary">
                     <Label>-1ms</Label>
                 </Button>
             </Cell>
             <Cell spanDevices={spanButton}>
-                <Button on:click={() => adjustValue(-0.01)} color="secondary">
+                <Button onclick={() => adjustValue(-0.01)} color="secondary">
                     <Label>-10ms</Label>
                 </Button>
             </Cell>
             <Cell spanDevices={spanButton}>
-                <Button on:click={() => adjustValue(-0.1)} color="secondary">
+                <Button onclick={() => adjustValue(-0.1)} color="secondary">
                     <Label>-0.1s</Label>
                 </Button>
             </Cell>
             <Cell spanDevices={spanButton}>
-                <Button on:click={() => adjustValue(-1)} color="secondary">
+                <Button onclick={() => adjustValue(-1)} color="secondary">
                     <Label>-1s</Label>
                 </Button>
             </Cell>
@@ -63,22 +72,22 @@
     <Cell spanDevices={spanHalf}>
         <InnerGrid class="small-gap">
             <Cell spanDevices={spanButton}>
-                <Button on:click={() => adjustValue(0.001)}>
+                <Button onclick={() => adjustValue(0.001)}>
                     <Label>+1ms</Label>
                 </Button>
             </Cell>
             <Cell spanDevices={spanButton}>
-                <Button on:click={() => adjustValue(0.01)}>
+                <Button onclick={() => adjustValue(0.01)}>
                     <Label>+10ms</Label>
                 </Button>
             </Cell>
             <Cell spanDevices={spanButton}>
-                <Button on:click={() => adjustValue(0.1)}>
+                <Button onclick={() => adjustValue(0.1)}>
                     <Label>+0.1s</Label>
                 </Button>
             </Cell>
             <Cell spanDevices={spanButton}>
-                <Button on:click={() => adjustValue(1)}>
+                <Button onclick={() => adjustValue(1)}>
                     <Label>+1s</Label>
                 </Button>
             </Cell>

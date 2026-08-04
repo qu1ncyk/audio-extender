@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import {
         audioBuffer,
         loopStart,
@@ -12,19 +14,19 @@
     import Textfield from "@smui/textfield";
     import FormField from "@smui/form-field";
 
-    let selected: "loops" | "duration" = "loops";
-    let num = 2;
+    let selected: "loops" | "duration" = $state("loops");
+    let num = $state(2);
 
     let introDuration: number;
     let loopDuration: number;
     let outroDuration: number;
     let sampleRate: number;
-    $: {
+    run(() => {
         introDuration = $loopStart;
         loopDuration = $loopEnd - $loopStart;
         outroDuration = $duration - $loopEnd;
         sampleRate = $audioBuffer.sampleRate;
-    }
+    });
 
     function extendChannel(channel: number, loops: number) {
         let introBuffer = new Float32Array(introDuration * sampleRate);
