@@ -6,10 +6,10 @@
     import { exportLibrary } from "./import-export/export-library";
     import { importLibrary } from "./import-export/import-library";
 
-    import "@fontsource/roboto/300.css";
-    import "@fontsource/roboto/400.css";
-    import "@fontsource/roboto/500.css";
-    import "@fontsource/roboto/700.css";
+    import "@fontsource/roboto/300";
+    import "@fontsource/roboto/400";
+    import "@fontsource/roboto/500";
+    import "@fontsource/roboto/700";
     import TopAppBar, { Row, Section, Title } from "@smui/top-app-bar";
     import IconButton from "@smui/icon-button";
     import Menu from "@smui/menu";
