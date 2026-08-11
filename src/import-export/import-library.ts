@@ -1,6 +1,5 @@
 import { decode } from "cborg";
-import { dbPromise, type SongData } from "../db";
-import { globalState, Page } from "../state.svelte";
+import { checkLibraryEmpty, dbPromise, type SongData } from "../db";
 
 /** Show an upload dialog and add the uploaded CBOR to the library */
 export async function importLibrary() {
@@ -10,13 +9,11 @@ export async function importLibrary() {
     let db = await dbPromise;
     let transaction = db.transaction("library", "readwrite");
     let store = transaction.objectStore("library");
-    decoded.forEach((item: SongData) => {
-        store.put(item);
-    });
+    await Promise.all(
+        decoded.map((item: SongData) => store.put(item))
+    );
 
-    if (globalState.currentPage === Page.filePicker) {
-        location.reload();
-    }
+    await checkLibraryEmpty();
 }
 
 /** Show a dialog for uploading a file and return it as an ArrayBuffer */

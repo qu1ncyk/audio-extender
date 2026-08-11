@@ -1,4 +1,5 @@
 import { openDB, type DBSchema } from "idb";
+import { globalState } from "./state.svelte";
 
 export interface SongData {
     name: string;
@@ -22,3 +23,9 @@ export let dbPromise = openDB<Schema>("audio-extender", 1, {
         }
     },
 });
+
+export async function checkLibraryEmpty() {
+    let db = await dbPromise;
+    let keys = await db.getAllKeys("library", null, 1);
+    globalState.isLibraryEmpty = keys.length === 0;
+}

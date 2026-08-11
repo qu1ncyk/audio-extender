@@ -13,4 +13,5 @@ export let globalState = $state({
     audioBuffer: new AudioBuffer({ length: 1, sampleRate: 8e4 }),
     filename: "",
     storedInLibrary: false,
+    isLibraryEmpty: true,
 });

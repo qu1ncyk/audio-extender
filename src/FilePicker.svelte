@@ -1,6 +1,6 @@
 <script lang="ts">
     import { globalState, Page } from "./state.svelte";
-    import { dbPromise } from "./db";
+    import { checkLibraryEmpty } from "./db";
 
     import Card from "@smui/card";
     import Grid, { Cell } from "@smui/layout-grid";
@@ -71,15 +71,11 @@
         });
     }
 
-    async function isLibraryEmpty() {
-        let db = await dbPromise;
-        let keys = await db.getAllKeys("library", null, 1);
-        return keys.length === 0;
-    }
-
     $effect(() => {
         if (files) loadFile(FileSource.file);
     });
+
+    checkLibraryEmpty();
 </script>
 
 <div>
@@ -132,34 +128,21 @@
                 <span class="or">or</span>
             </Cell>
             <Cell spanDevices={{ desktop: 4, tablet: 2, phone: 4 }}>
-                {#await isLibraryEmpty()}
+                {#if !globalState.isLibraryEmpty}
+                    <Button
+                        variant="outlined"
+                        class="full-size"
+                        onclick={() => (globalState.currentPage = Page.library)}
+                    >
+                        <SvgIcon icon={mdiBookmarkMultipleOutline} />
+                        <Label>Choose from library</Label>
+                    </Button>
+                {:else}
                     <Button variant="outlined" class="full-size" disabled>
                         <SvgIcon icon={mdiBookmarkMultipleOutline} />
-                        <Label>Waiting for library...</Label>
+                        <Label>Library is empty</Label>
                     </Button>
-                {:then isEmpty}
-                    {#if !isEmpty}
-                        <Button
-                            variant="outlined"
-                            class="full-size"
-                            onclick={() =>
-                                (globalState.currentPage = Page.library)}
-                        >
-                            <SvgIcon icon={mdiBookmarkMultipleOutline} />
-                            <Label>Choose from library</Label>
-                        </Button>
-                    {:else}
-                        <Button variant="outlined" class="full-size" disabled>
-                            <SvgIcon icon={mdiBookmarkMultipleOutline} />
-                            <Label>Library is empty</Label>
-                        </Button>
-                    {/if}
-                {:catch}
-                    <Button variant="outlined" class="full-size" disabled>
-                        <SvgIcon icon={mdiBookmarkMultipleOutline} />
-                        <Label>Library is not available</Label>
-                    </Button>
-                {/await}
+                {/if}
             </Cell>
         </Grid>
     </Card>
