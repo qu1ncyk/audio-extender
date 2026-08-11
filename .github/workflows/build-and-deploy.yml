@@ -25,7 +25,7 @@ jobs:
           git-commit-gpgsign: true
 
       - name: Deploy to gh-pages
-        uses: JamesIves/github-pages-deploy-action@4
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
           git-config-name: ${{github.repository_owner}}
           git-config-email: ${{github.event.repository.owner.id}}+${{github.repository_owner}}@users.noreply.github.com
