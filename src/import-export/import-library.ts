@@ -1,7 +1,6 @@
 import { decode } from "cborg";
 import { dbPromise, type SongData } from "../db";
-import { currentPage, Page } from "../stores";
-import { get } from "svelte/store";
+import { globalState, Page } from "../state.svelte";
 
 /** Show an upload dialog and add the uploaded CBOR to the library */
 export async function importLibrary() {
@@ -15,7 +14,7 @@ export async function importLibrary() {
         store.put(item);
     });
 
-    if (get(currentPage) === Page.filePicker) {
+    if (globalState.currentPage === Page.filePicker) {
         location.reload();
     }
 }

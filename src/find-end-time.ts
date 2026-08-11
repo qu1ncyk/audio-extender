@@ -1,5 +1,4 @@
-import { audioBuffer, loopStart, loopEnd } from "./stores";
-import { get } from "svelte/store";
+import { globalState } from "./state.svelte";
 
 function getDifference(smallSample: Float32Array, bigSample: Float32Array, offset: number) {
     let difference = 0;
@@ -14,18 +13,18 @@ export function findEndTime() {
     // It then slides the start sample over the end sample and searches
     // for the best match.
 
-    let $audioBuffer = get(audioBuffer);
-    let $loopStart = get(loopStart);
-    let $loopEnd = get(loopEnd);
-    let sampleRate = $audioBuffer.sampleRate;
+    let audioBuffer = globalState.audioBuffer;
+    let loopStart = globalState.loopStart;
+    let loopEnd = globalState.loopEnd;
+    let sampleRate = audioBuffer.sampleRate;
     const startSampleLength = 250; // # of samples
     const endSampleDuration = 2; // seconds
 
     let startSample = new Float32Array(startSampleLength);
-    $audioBuffer.copyFromChannel(startSample, 0, $loopStart * sampleRate);
+    audioBuffer.copyFromChannel(startSample, 0, loopStart * sampleRate);
 
     let endSample = new Float32Array(endSampleDuration * sampleRate + startSampleLength);
-    $audioBuffer.copyFromChannel(endSample, 0, ($loopEnd - endSampleDuration / 2) * sampleRate);
+    audioBuffer.copyFromChannel(endSample, 0, (loopEnd - endSampleDuration / 2) * sampleRate);
 
     let smallestDifference = Infinity;
     let bestOffset = 0;
@@ -37,5 +36,5 @@ export function findEndTime() {
         }
     }
 
-    return $loopEnd - endSampleDuration / 2 + bestOffset / sampleRate;
+    return loopEnd - endSampleDuration / 2 + bestOffset / sampleRate;
 }

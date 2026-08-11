@@ -2,7 +2,7 @@
     import FilePicker from "./FilePicker.svelte";
     import Extender from "./Extender.svelte";
     import Library from "./Library.svelte";
-    import { currentPage, Page } from "./stores";
+    import { globalState, Page } from "./state.svelte";
     import { exportLibrary } from "./import-export/export-library";
     import { importLibrary } from "./import-export/import-library";
 
@@ -49,8 +49,8 @@
         <Section>
             <IconButton
                 class="variant"
-                onclick={() => ($currentPage = Page.filePicker)}
-                disabled={$currentPage === Page.filePicker}
+                onclick={() => (globalState.currentPage = Page.filePicker)}
+                disabled={globalState.currentPage === Page.filePicker}
             >
                 <SvgIcon icon={mdiArrowLeft} />
             </IconButton>
@@ -79,9 +79,9 @@
 </TopAppBar>
 
 <main>
-    {#if $currentPage === Page.filePicker}
+    {#if globalState.currentPage === Page.filePicker}
         <FilePicker />
-    {:else if $currentPage === Page.library}
+    {:else if globalState.currentPage === Page.library}
         <Library />
     {:else}
         <Extender />

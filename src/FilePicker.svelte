@@ -1,13 +1,5 @@
 <script lang="ts">
-    import { run, preventDefault } from 'svelte/legacy';
-
-    import {
-        file,
-        currentPage,
-        Page,
-        filename,
-        storedInLibrary,
-    } from "./stores";
+    import { globalState, Page } from "./state.svelte";
     import { dbPromise } from "./db";
 
     import Card from "@smui/card";
@@ -32,31 +24,31 @@
         url,
     }
 
-
     let snackbar: Snackbar;
 
-    async function loadFile(source: FileSource) {
+    async function loadFile(source: FileSource, event?: SubmitEvent) {
+        event?.preventDefault();
         if (source === FileSource.file) {
-            $file = await loadFromFileInput();
+            globalState.file = await loadFromFileInput();
         } else {
             try {
                 let splitUrl = new URL(url).pathname.split("/");
-                $filename = decodeURIComponent(
+                globalState.filename = decodeURIComponent(
                     splitUrl[splitUrl.length - 1] ||
                         // use the second last part if the url ends with /
-                        splitUrl[splitUrl.length - 2]
+                        splitUrl[splitUrl.length - 2],
                 );
 
                 let result = await fetch(url);
-                $file = await result.arrayBuffer();
+                globalState.file = await result.arrayBuffer();
             } catch (e) {
                 console.error(e);
                 snackbar.open();
             }
         }
-        if ($file.byteLength !== 0) {
-            $storedInLibrary = false;
-            $currentPage = Page.extender;
+        if (globalState.file.byteLength !== 0) {
+            globalState.storedInLibrary = false;
+            globalState.currentPage = Page.extender;
         }
     }
 
@@ -74,7 +66,7 @@
                 console.error(e.target?.error);
                 alert("Could not read the file");
             };
-            $filename = files[0].name;
+            globalState.filename = files[0].name;
             reader.readAsArrayBuffer(files[0]);
         });
     }
@@ -84,8 +76,9 @@
         let keys = await db.getAllKeys("library", null, 1);
         return keys.length === 0;
     }
-    run(() => {
-        files && loadFile(FileSource.file);
+
+    $effect(() => {
+        if (files) loadFile(FileSource.file);
     });
 </script>
 
@@ -96,11 +89,7 @@
                 <p>Choose an audio file to extend</p>
             </Cell>
             <Cell spanDevices={{ desktop: 3, tablet: 2, phone: 4 }}>
-                <Button
-                    class="full-size"
-                    variant="outlined"
-                    tag="label"
-                >
+                <Button class="full-size" variant="outlined" tag="label">
                     <SvgIcon icon={mdiUpload} />
                     <Label>Upload a file</Label>
                     <input type="file" bind:files accept="audio/*,video/*" />
@@ -113,7 +102,7 @@
                 <span class="or">or</span>
             </Cell>
             <Cell spanDevices={{ desktop: 3, tablet: 2, phone: 4 }}>
-                <form onsubmit={preventDefault(() => loadFile(FileSource.url))}>
+                <form onsubmit={(e) => loadFile(FileSource.url, e)}>
                     <Textfield
                         bind:value={url}
                         label="URL"
@@ -123,21 +112,16 @@
                         required
                     >
                         {#snippet leadingIcon()}
-                                                <SvgIcon
-
+                            <SvgIcon
                                 class="mdc-text-field__icon mdc-text-field__icon--leading"
                                 icon={mdiLinkVariant}
                             />
-                                            {/snippet}
+                        {/snippet}
                         {#snippet trailingIcon()}
-                                                <IconButton
-
-                                touch
-                                style="margin: auto;"
-                            >
+                            <IconButton touch style="margin: auto;">
                                 <SvgIcon icon={mdiCheck} />
                             </IconButton>
-                                            {/snippet}
+                        {/snippet}
                     </Textfield>
                 </form>
             </Cell>
@@ -158,7 +142,8 @@
                         <Button
                             variant="outlined"
                             class="full-size"
-                            onclick={() => ($currentPage = Page.library)}
+                            onclick={() =>
+                                (globalState.currentPage = Page.library)}
                         >
                             <SvgIcon icon={mdiBookmarkMultipleOutline} />
                             <Label>Choose from library</Label>

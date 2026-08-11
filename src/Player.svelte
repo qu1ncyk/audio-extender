@@ -1,14 +1,5 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
-    import {
-        file,
-        duration,
-        loopStart,
-        loopEnd,
-        audioBuffer,
-        storedInLibrary,
-    } from "./stores";
+    import { globalState } from "./state.svelte";
     import { secondsToTime } from "./convert-time";
 
     import Card from "@smui/card";
@@ -18,16 +9,16 @@
     import SvgIcon from "./SvgIcon.svelte";
     import { mdiPlay, mdiPause } from "@mdi/js";
     import Slider from "@smui/slider";
-    import Snackbar, {Label} from "@smui/snackbar";
+    import Snackbar, { Label } from "@smui/snackbar";
 
     let audioContext = new AudioContext();
     let audioSource: AudioBufferSourceNode | undefined = $state();
 
-    run(() => {
+    $effect(() => {
         if (audioSource) {
             audioSource.loop = true;
-            audioSource.loopStart = $loopStart;
-            audioSource.loopEnd = $loopEnd;
+            audioSource.loopStart = globalState.loopStart;
+            audioSource.loopEnd = globalState.loopEnd;
         }
     });
 
@@ -36,7 +27,7 @@
         if (started) audioSource?.stop();
         audioSource = audioContext.createBufferSource();
         audioSource.connect(audioContext.destination);
-        audioSource.buffer = $audioBuffer;
+        audioSource.buffer = globalState.audioBuffer;
         audioSource.start(when, offset, duration);
         if (audioContext.state === "suspended") audioContext.resume();
         started = true;
@@ -77,8 +68,8 @@
     }
 
     function progressLoop() {
-        if (sliderValue >= $loopEnd) {
-            startingTime += $loopEnd - $loopStart;
+        if (sliderValue >= globalState.loopEnd) {
+            startingTime += globalState.loopEnd - globalState.loopStart;
         }
         if (!sliding) sliderValue = Date.now() / 1000 - startingTime;
 
@@ -91,15 +82,17 @@
     let loading = $state(true);
     (async () => {
         try {
-            let clonedFile = new ArrayBuffer($file.byteLength);
-            new Uint8Array(clonedFile).set(new Uint8Array($file));
+            let clonedFile = new ArrayBuffer(globalState.file.byteLength);
+            new Uint8Array(clonedFile).set(new Uint8Array(globalState.file));
 
             audioSource = audioContext.createBufferSource();
-            $audioBuffer = await audioContext.decodeAudioData(clonedFile);
-            audioSource.buffer = $audioBuffer;
-            $duration = audioSource.buffer.duration;
+            globalState.audioBuffer =
+                await audioContext.decodeAudioData(clonedFile);
+            audioSource.buffer = globalState.audioBuffer;
+            globalState.duration = audioSource.buffer.duration;
 
-            if (!$storedInLibrary) $loopEnd = $duration;
+            if (!globalState.storedInLibrary)
+                globalState.loopEnd = globalState.duration;
 
             loading = false;
         } catch (e) {
@@ -127,7 +120,7 @@
         </span>
 
         <Slider
-            max={Math.max($duration, 1)}
+            max={Math.max(globalState.duration, 1)}
             bind:value={sliderValue}
             step={0.001}
             style="width: 100%;"
@@ -135,7 +128,9 @@
             onSMUISliderChange={slideEnd}
         />
 
-        <span class="end time">{secondsToTime(Math.floor($duration))}</span>
+        <span class="end time"
+            >{secondsToTime(Math.floor(globalState.duration))}</span
+        >
     </FormField>
 </Card>
 

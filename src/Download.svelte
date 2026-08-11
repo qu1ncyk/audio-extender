@@ -1,13 +1,5 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
-    import {
-        audioBuffer,
-        loopStart,
-        loopEnd,
-        duration,
-        filename,
-    } from "./stores";
+    import { globalState } from "./state.svelte";
     import toWav from "audiobuffer-to-wav";
 
     import Select, { Option } from "@smui/select";
@@ -17,33 +9,27 @@
     let selected: "loops" | "duration" = $state("loops");
     let num = $state(2);
 
-    let introDuration: number;
-    let loopDuration: number;
-    let outroDuration: number;
-    let sampleRate: number;
-    run(() => {
-        introDuration = $loopStart;
-        loopDuration = $loopEnd - $loopStart;
-        outroDuration = $duration - $loopEnd;
-        sampleRate = $audioBuffer.sampleRate;
-    });
+    let introDuration = $derived(globalState.loopStart);
+    let loopDuration = $derived(globalState.loopEnd - globalState.loopStart);
+    let outroDuration = $derived(globalState.duration - globalState.loopEnd);
+    let sampleRate = $derived(globalState.audioBuffer.sampleRate);
 
     function extendChannel(channel: number, loops: number) {
         let introBuffer = new Float32Array(introDuration * sampleRate);
-        $audioBuffer.copyFromChannel(introBuffer, channel);
+        globalState.audioBuffer.copyFromChannel(introBuffer, channel);
 
         let loopBuffer = new Float32Array(loopDuration * sampleRate);
-        $audioBuffer.copyFromChannel(
+        globalState.audioBuffer.copyFromChannel(
             loopBuffer,
             channel,
-            $loopStart * sampleRate
+            globalState.loopStart * sampleRate
         );
 
         let outroBuffer = new Float32Array(outroDuration * sampleRate);
-        $audioBuffer.copyFromChannel(
+        globalState.audioBuffer.copyFromChannel(
             outroBuffer,
             channel,
-            $loopEnd * sampleRate
+            globalState.loopEnd * sampleRate
         );
 
         let bufferSize = Math.round(
@@ -81,11 +67,11 @@
             sampleRate * (introDuration + loopDuration * loops + outroDuration);
         let extendedAudioBuffer = new AudioBuffer({
             length: bufferSize,
-            sampleRate: $audioBuffer.sampleRate,
-            numberOfChannels: $audioBuffer.numberOfChannels,
+            sampleRate: globalState.audioBuffer.sampleRate,
+            numberOfChannels: globalState.audioBuffer.numberOfChannels,
         });
 
-        for (let i = 0; i < $audioBuffer.numberOfChannels; i++) {
+        for (let i = 0; i < globalState.audioBuffer.numberOfChannels; i++) {
             let extendedBuffer = extendChannel(i, loops);
             extendedAudioBuffer.copyToChannel(extendedBuffer, i);
         }
@@ -98,7 +84,7 @@
 
         let a = document.createElement("a");
         a.href = url;
-        a.download = $filename + "-extended.wav";
+        a.download = globalState.filename + "-extended.wav";
         a.click();
 
         URL.revokeObjectURL(url);

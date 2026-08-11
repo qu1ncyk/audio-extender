@@ -1,47 +1,60 @@
 <script lang="ts">
     import { timeToSeconds, secondsToTime } from "./convert-time";
-    import writableDerived from "svelte-writable-derived";
-    import type { Writable } from "svelte/store";
 
     import Grid, { Cell, InnerGrid } from "@smui/layout-grid";
     import Button, { Label } from "@smui/button";
     import Textfield from "@smui/textfield";
+    import { untrack } from "svelte";
 
     interface Props {
-        value: Writable<number>;
-        min?: any;
-        max?: any;
+        value: number;
+        min?: number;
+        max?: number;
         title?: string;
     }
 
     let {
-        value,
+        value = $bindable(),
         min = -Infinity,
         max = Infinity,
-        title = ""
+        title = "",
     }: Props = $props();
 
     const spanFull = { desktop: 12, tablet: 8, phone: 4 };
     const spanHalf = { desktop: 6, tablet: 4, phone: 2 };
     const spanButton = { desktop: 6, tablet: 4, phone: 4 };
 
-    let valueString = writableDerived(value, secondsToTime, (x, old) => {
-        let seconds = timeToSeconds(x);
-        if (!isNaN(seconds)) return seconds;
-        else return old;
+    let valueString = $state("");
+
+    // `value` -> `valueString` update
+    $effect(() => {
+        let timeString = secondsToTime(value);
+        let _valueString = untrack(() => valueString);
+        if (timeToSeconds(_valueString) !== value) {
+            valueString = timeString;
+        }
+    });
+
+    // `valueString` -> `value` update
+    $effect(() => {
+        let seconds = timeToSeconds(valueString);
+        let _value = untrack(() => value);
+        if (!isNaN(seconds) && _value !== seconds) {
+            value = seconds;
+        }
     });
 
     function adjustValue(difference: number) {
-        let newValue = $value + difference;
-        if (newValue < min) $value = min;
-        else if (newValue > max) $value = max;
-        else $value = newValue;
+        let newValue = value + difference;
+        if (newValue < min) value = min;
+        else if (newValue > max) value = max;
+        else value = newValue;
     }
 </script>
 
 <Grid>
     <Cell spanDevices={spanFull}>
-        <Textfield bind:value={$valueString} label={title} />
+        <Textfield bind:value={valueString} label={title} />
     </Cell>
 
     <Cell spanDevices={spanHalf}>

@@ -3,14 +3,7 @@
     import TimeInput from "./TimeInput.svelte";
     import WaveGraph from "./WaveGraph.svelte";
     import Download from "./Download.svelte";
-    import {
-        loopStart,
-        loopEnd,
-        duration,
-        file,
-        filename,
-        storedInLibrary,
-    } from "./stores";
+    import { globalState } from "./state.svelte";
     import { findEndTime } from "./find-end-time";
     import { dbPromise } from "./db";
 
@@ -39,12 +32,12 @@
     async function addToLibrary() {
         let db = await dbPromise;
         db.put("library", {
-            name: $filename,
-            loopStart: $loopStart,
-            loopEnd: $loopEnd,
-            file: $file,
+            name: globalState.filename,
+            loopStart: globalState.loopStart,
+            loopEnd: globalState.loopEnd,
+            file: globalState.file,
         });
-        $storedInLibrary = true;
+        globalState.storedInLibrary = true;
     }
 
     let dialogOpen = $state(false);
@@ -58,9 +51,9 @@
     <Cell spanDevices={spanHalf}>
         <Card>
             <TimeInput
-                value={loopStart}
+                bind:value={globalState.loopStart}
                 min={0}
-                max={$loopEnd}
+                max={globalState.loopEnd}
                 title="Loop from"
             />
         </Card>
@@ -68,9 +61,9 @@
     <Cell spanDevices={spanHalf}>
         <Card>
             <TimeInput
-                value={loopEnd}
-                min={$loopStart}
-                max={$duration}
+                bind:value={globalState.loopEnd}
+                min={globalState.loopStart}
+                max={globalState.duration}
                 title="until"
             />
         </Card>
@@ -88,13 +81,13 @@
                     <SvgIcon icon={mdiMagnifyPlusOutline} />
                 </IconButton>
 
-                <Button onclick={() => ($loopEnd = findEndTime())}>
+                <Button onclick={() => (globalState.loopEnd = findEndTime())}>
                     <SvgIcon icon={mdiAutoFix} />
                     <Label>Adjust end time</Label>
                 </Button>
 
                 <Button
-                    onclick={() => player.start(0, Math.max($loopEnd - 5, 0))}
+                    onclick={() => player.start(0, Math.max(globalState.loopEnd - 5, 0))}
                 >
                     <SvgIcon icon={mdiPlay} />
                     <Label>Test timings</Label>
@@ -109,7 +102,7 @@
                 <Button onclick={addToLibrary}>
                     <SvgIcon icon={mdiBookmarkMultipleOutline} />
                     <Label>
-                        {#if $storedInLibrary}
+                        {#if globalState.storedInLibrary}
                             Update in library
                         {:else}
                             Add to library

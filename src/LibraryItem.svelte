@@ -1,17 +1,7 @@
 <script lang="ts">
-    import { preventDefault } from 'svelte/legacy';
-
     import { secondsToTime } from "./convert-time";
     import { dbPromise, type SongData } from "./db";
-    import {
-        currentPage,
-        file,
-        filename,
-        storedInLibrary,
-        Page,
-        loopStart,
-        loopEnd,
-    } from "./stores";
+    import { globalState, Page } from "./state.svelte";
 
     import List, {
         Text,
@@ -70,12 +60,12 @@
         if (data === undefined) {
             throw new Error("DB.library is undefined");
         }
-        $file = data.file;
-        $filename = fname;
-        $loopStart = data.loopStart;
-        $loopEnd = data.loopEnd;
-        $storedInLibrary = true;
-        $currentPage = Page.extender;
+        globalState.file = data.file;
+        globalState.filename = fname;
+        globalState.loopStart = data.loopStart;
+        globalState.loopEnd = data.loopEnd;
+        globalState.storedInLibrary = true;
+        globalState.currentPage = Page.extender;
     }
 
     function renameFile() {
@@ -105,7 +95,7 @@
         if ((await store.getAllKeys()).length > 0) {
             libraryData = getLibraryData();
         } else {
-            $currentPage = Page.filePicker;
+            globalState.currentPage = Page.filePicker;
         }
     }
 </script>
@@ -162,7 +152,12 @@
 <Dialog bind:open={dialogOpen} onSMUIDialogClosed={renameDialogClose}>
     <Title>Rename file</Title>
     <Content>
-        <form onsubmit={preventDefault(() => (dialogOpen = false))}>
+        <form
+            onsubmit={(e) => {
+                e.preventDefault();
+                dialogOpen = false;
+            }}
+        >
             <Textfield bind:value={name} />
         </form>
     </Content>

@@ -1,8 +1,6 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import { onMount } from "svelte";
-    import { loopStart, loopEnd, audioBuffer } from "./stores";
+    import { globalState } from "./state.svelte";
 
     interface Props {
         zoom: number;
@@ -18,11 +16,11 @@
     function getGraphData(time: number) {
         let dataSize = width * zoom;
 
-        let dataCenter = $audioBuffer.sampleRate * time;
+        let dataCenter = globalState.audioBuffer.sampleRate * time;
         let dataStart = Math.round(dataCenter - dataSize / 2);
 
         let audioData = new Float32Array(dataSize);
-        $audioBuffer.copyFromChannel(audioData, 0, Math.max(dataStart, 0));
+        globalState.audioBuffer.copyFromChannel(audioData, 0, Math.max(dataStart, 0));
 
         let offset = Math.max(-dataStart, 0);
         let graphData = new Uint8Array(dataSize);
@@ -46,8 +44,8 @@
             "--secondary-color",
         );
 
-        let loopStartData = getGraphData($loopStart);
-        let loopEndData = getGraphData($loopEnd);
+        let loopStartData = getGraphData(globalState.loopStart);
+        let loopEndData = getGraphData(globalState.loopEnd);
 
         ctx.clearRect(0, 0, width, 256);
 
@@ -79,12 +77,9 @@
         ctx.stroke();
     }
 
-    run(() => {
-        if ($audioBuffer.length > 1 && canvas) {
-            $loopStart;
-            $loopEnd;
+    $effect(() => {
+        if (globalState.audioBuffer.length > 1 && canvas) {
             canvas.width = width;
-            zoom;
             drawGraph();
         }
     });
